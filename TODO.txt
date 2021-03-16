@@ -1,0 +1,22 @@
+****MUST HAVE****
+---scrambles - fix useless moves---
+--times--
+logs
+--name/brand recognition--
+average
+import/export
+time trends
+
+***NICE TO HAVE***
+custom background loader
+custom fonts
+--custom themes--
+merch
+speed team
+friends list
+discord integration
+cfop trainer
+*maybe roux trainer
+spotify integration - spotipy
+highlights
+inspections
