@@ -1,5 +1,6 @@
 import pygame
 from settings import *
+from collections import Iterable
 
 class Enterable:
     def __init__(self):
@@ -187,7 +188,6 @@ class Button(AppComponent):
         elif self.mode == 'i':
             self.image.render(window)
 
-
 class Screen(AppComponent):
     def __init__(self, center=(0,0), size=(0,0), enabled=True, components={}):
         super().__init__(center=center, size=size, enabled=enabled)
@@ -233,3 +233,20 @@ class Screen(AppComponent):
         for component in self.components.values():
             if component.selected and isinstance(component, Enterable):
                 component.enter(char)
+
+
+class ScrollBox(AppComponent):
+    def __init__(self, center=(0,0), size=(0,0), enabled=True, itmes=[]):
+        super().__init__(center=center, size=size, enabled=enabled)
+        self.surface = pygame.Surface(size)
+        self.items = items
+    
+    def render(self, window):
+        for i in self.items:
+            row = pygame.Surface((self.width, 20))
+            if hasattr(i, Iterable):             
+                for j in i:
+                    j.render(row)
+            
+                
+

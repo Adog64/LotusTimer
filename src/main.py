@@ -1,5 +1,4 @@
 from os import path
-from typing import get_origin
 import pygame as pg
 import sys
 from pygame.locals import *
