@@ -9,27 +9,27 @@ from components import *
 from util import *
 import json
 import time
-import datetime
 
 class App:
     def __init__(self):
-        pg.display.init()
-        pg.font.init()
-        self.APP_DIR = path.split(path.dirname(__file__))[0]
-        self.assets = self.APP_DIR + '/assets/'
-        self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE, pg.FULLSCREEN)
-        self.logo = pg.image.load(self.assets + logo)
-        pg.display.set_caption(TITLE)
-        pg.display.set_icon(self.logo)
-        self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
-        self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
-        self.theme_init(self.theme + 'options.json')
-        self.title_font = pg.font.Font(self.assets + title_font, SCRAMBLE_SIZE)
-        self.subtitle_font = pg.font.Font(self.theme + text_font, 35)
-        self.text_font = pg.font.Font(self.theme + text_font, 25)
-        self.init_sessions()
-        self.running = True
-        self.screens()
+        if input("Pass: ") == 'monke':
+            pg.display.init()
+            pg.font.init()
+            self.APP_DIR = path.split(path.dirname(__file__))[0]
+            self.assets = self.APP_DIR + '/assets/'
+            self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE, pg.FULLSCREEN)
+            self.logo = pg.image.load(self.assets + logo)
+            pg.display.set_caption(TITLE)
+            pg.display.set_icon(self.logo)
+            self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
+            self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
+            self.theme_init(self.theme + 'options.json')
+            self.title_font = pg.font.Font(self.assets + title_font, SCRAMBLE_SIZE)
+            self.subtitle_font = pg.font.Font(self.theme + text_font, 35)
+            self.text_font = pg.font.Font(self.theme + text_font, 25)
+            self.init_sessions()
+            self.running = True
+            self.screens()
         
 
     def process_inputs(self):
@@ -60,7 +60,8 @@ class App:
         'Logo': Image((94, 64), (128, 128), self.logo),
         'LogoText': TextField(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
         'TimeBox': Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True),
-        'QuickStatsBox': Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True)
+        'QuickStatsBox': Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True),
+        'Quit': Button((100, DEFAULT_WINDOW_WIDTH-100), (75, 75), enabled=True, text='X', when_pressed=self.end, text_font=self.text_font)
         }
         self.screen = Screen(((DEFAULT_WINDOW_WIDTH+188)/2, DEFAULT_WINDOW_HEIGHT/2), DEFAULT_WINDOW_SIZE, True, timer_screen)
 
@@ -148,6 +149,9 @@ class App:
             else:
                 formatted += c
         return formatted in VALID_TIME_FORMATS
+    
+    def end(self):
+        self.running = False
 
 if __name__ == '__main__':
     a = App()
