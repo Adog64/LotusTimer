@@ -1,4 +1,4 @@
-from os import times
+import os
 import pygame
 import random
 from settings import *
@@ -50,12 +50,11 @@ class SessionManager:
     def __init__(self, path, session=1):
         self.session_number = session
         self.path = path
-        self.retrieve_session_data()
+        self.retrieve_data()
 
-    def retrieve_session_data(self):
-        data = json.loads(open(self.path).read())
-        self.times = data['session' + str(self.session_number)]
-        self.settings = json.loads(data['properties']['sessionData'])
+    def retrieve_data(self):
+        self.data = json.load(open(self.path))
+
     
     def parse_session_setting(self):
         data = self.session_settings[str(self.session)]
@@ -68,11 +67,14 @@ class SessionManager:
         self.puzzle = type
 
     def add_time(self, time, scramble, timestamp):
-        self.times.append([time, scramble, timestamp])
+        self.data['session'+str(self.session_number)].append([time, scramble, timestamp])
+        os.remove(self.path)
+        with open(self.path, 'w') as f:
+            json.dump(self.data, f)
+       
     
     def change_session(self, session=1):
         self.session_number = session
-        retrieve
         
 
 if __name__ == '__main__':
