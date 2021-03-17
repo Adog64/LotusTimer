@@ -44,7 +44,7 @@ class AppComponent:
 
     
 
-class TextField(AppComponent, Enterable):
+class TextBox(AppComponent, Enterable):
     def __init__(self, font, text_color=(0,0,0), center=(0,0), size=(0,0),
                  enterable=False, text='',enabled=True, bordered=False,
                  border_color=(255,255,255), fill_color=(100,100,100),
@@ -162,7 +162,7 @@ class Button(AppComponent):
         if image != None and mode == 'i':
             self.image = Image(center=center, size=(size[0] - 2*button_img_gap, size[1] - 2*button_img_gap), image=image)
         if mode == 't':
-            self.text = TextField(text_font, text_color, self.center, size=(self.size[0] - 2*button_img_gap, self.size[1] - 2*button_img_gap), text=text, bordered=False)
+            self.text = TextBox(text_font, text_color, self.center, size=(self.size[0] - 2*button_img_gap, self.size[1] - 2*button_img_gap), text=text, bordered=False)
             self.text.box.darken()
         self.box = Box(center=center, size=size, visible=True)
         self.mode = mode
@@ -235,8 +235,76 @@ class Screen(AppComponent):
                 component.enter(char)
 
 
+class Label(AppComponent):
+    def __init__(self, center, size, font, text_color, text, enabled):
+        super().__init__(center=center, size=size, enabled=enabled)
+        self.font = font
+        self.text = text
+        self.text_color = text_color
+
+    def render(self, window):
+        y = self.rect.top
+        lineSpacing = -2
+        text = self.text
+        lines = []
+
+        # get the height of the font
+        fontHeight = self.font.size("Tg")[1]
+
+        while text:
+            i = 1
+
+            # determine if the row of text will be outside our area
+            if y + fontHeight > self.rect.bottom:
+                break
+
+            # determine maximum width of line
+            while self.font.size(text[:i])[0] < self.rect.width and i < len(text):
+                i += 1
+
+            # if we've wrapped the text, then adjust the wrap to the last word      
+            if i < len(text): 
+                i = text.rfind(" ", 0, i) + 1
+
+            # render the line and blit it to the surface
+            lines.append(self.font.render(text[:i], True, self.text_color))
+            y += fontHeight + lineSpacing
+
+            # remove the text we just blitted
+            text = text[i:]
+
+        for i in lines[-1::-1]:
+            r = i.get_rect()
+
+            window.blit(i, (self.center[0] - r.width/2, self.center[1] - r.height/2))
+
+        #return unused text
+        return text
+
+
+class Panel(AppComponent):
+    def __init__(self, center, size, enabled, font, items=[]):
+        super().__init__(center=center, size=size, enabled=enabled)
+        super().__init__(center=center, size=size, enabled=enabled)
+        self.surface = pygame.Surface(size)
+        self.items = items
+        self.font = font
+    
+    def render(self, window):
+        y = 25
+        c = 0
+        for i in self.items:
+            row = pygame.Surface((self.width, 20))
+            if isinstance(i, Iterable):
+                for j in i:
+                    pass                  
+            c += 1
+        window.blit(self.surface, self.rect)
+            
+
+
 class ScrollBox(AppComponent):
-    def __init__(self, center=(0,0), size=(0,0), enabled=True, itmes=[]):
+    def __init__(self, center=(0,0), size=(0,0), enabled=True, items=[]):
         super().__init__(center=center, size=size, enabled=enabled)
         self.surface = pygame.Surface(size)
         self.items = items
@@ -244,7 +312,7 @@ class ScrollBox(AppComponent):
     def render(self, window):
         for i in self.items:
             row = pygame.Surface((self.width, 20))
-            if hasattr(i, Iterable):             
+            if isinstance(i, Iterable):             
                 for j in i:
                     j.render(row)
             

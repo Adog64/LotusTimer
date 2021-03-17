@@ -54,10 +54,10 @@ class App:
     def screens(self):
         timer_screen = {
         'Panel': Box((94, DEFAULT_WINDOW_HEIGHT/2), (188, DEFAULT_WINDOW_HEIGHT+14), visible=True, fill_color=box_fill_color),
-        'Scramble': TextField(self.text_font, text_color, center=((DEFAULT_WINDOW_WIDTH+188)/2, 190), size=(600, 40), enterable=False, text=ScrambleGenerator.generate_scramble(), enabled=True, bordered=False),
-        'Time': TextField(self.subtitle_font, text_color, center=((DEFAULT_WINDOW_WIDTH+188)/2, 260), size=(600,90), enterable=True, bordered=True, is_valid_entry=self.valid_time),
+        'Scramble': Label(((DEFAULT_WINDOW_WIDTH+188)/2, 150), (DEFAULT_WINDOW_WIDTH/2, DEFAULT_WINDOW_HEIGHT/4),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("7x7"), enabled=True),
+        'Time': TextBox(self.subtitle_font, text_color, center=((DEFAULT_WINDOW_WIDTH+188)/2, 260), size=(600,90), enterable=True, bordered=True, is_valid_entry=self.valid_time),
         'Logo': Image((94, 64), (128, 128), self.logo),
-        'LogoText': TextField(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
+        'LogoText': TextBox(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
         'TimeBox': Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True),
         'QuickStatsBox': Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True),
         'Quit': Button((100, DEFAULT_WINDOW_WIDTH-100), (75, 75), enabled=True, text='X', when_pressed=self.end, text_font=self.text_font)
