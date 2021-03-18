@@ -3,6 +3,9 @@ import pygame
 import random
 from settings import *
 import json
+import configparser
+import spotipy
+from spotipy.oauth2 import SpotifyOAuth
 
 class ScrambleGenerator:
     def __init__(self, puzzle='3x3'):
@@ -75,8 +78,34 @@ class SessionManager:
     
     def change_session(self, session=1):
         self.session_number = session
+
+class SpotifyPlayer:
+    def __init__(self):
+        config = configparser.ConfigParser()
+        config.read('config.cfg')
+        scope = "user-read-playback-state,user-modify-playback-state,streaming"
+
+        auth = SpotifyOAuth(
+                    client_id="2d0aa7b1e8e34e6db2bbcc9e35fd4db5",
+                    client_secret="264330e29b1143f28800cc39b0ab8007",
+                    redirect_uri="http://google.com/",
+                    scope=scope)
+
+        token = auth.get_access_token(as_dict=False)
+        self.spotify = spotipy.Spotify(auth=token)
+
+    def play_song(self, song_title):
+        devices = self.spotify.devices()
+        device_id = devices['devices'][0]['id']
+        track = self.spotify.search(song_title)['tracks']['items'][0]['uri']
+        #self.spotify.start_playback(uris=[track], device_id=device_id)
+        self.spotify.shuffle(state=True)
+        genres = self.spotify.recommendation_genre_seeds()
+        queue = self.spotify.recommendations(seed_genres='reggae')
+        print(queue)
+        self.spotify.add_to_queue(queue)
         
 
 if __name__ == '__main__':
-    s = SessionManager()
-    s.add_time()
+    s = SpotifyPlayer()
+    s.play_song('December 1963')

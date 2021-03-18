@@ -11,24 +11,23 @@ import time
 
 class App:
     def __init__(self):
-        if input("Pass: ") == 'monke':
-            pg.display.init()
-            pg.font.init()
-            self.APP_DIR = path.split(path.dirname(__file__))[0]
-            self.assets = self.APP_DIR + '/assets/'
-            self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE, pg.FULLSCREEN)
-            self.logo = pg.image.load(self.assets + logo)
-            pg.display.set_caption(TITLE)
-            pg.display.set_icon(self.logo)
-            self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
-            self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
-            self.theme_init(self.theme + 'options.json')
-            self.title_font = pg.font.Font(self.assets + title_font, SCRAMBLE_SIZE)
-            self.subtitle_font = pg.font.Font(self.theme + text_font, 35)
-            self.text_font = pg.font.Font(self.theme + text_font, 25)
-            self.init_sessions()
-            self.running = True
-            self.screens()
+        pg.display.init()
+        pg.font.init()
+        self.APP_DIR = path.split(path.dirname(__file__))[0]
+        self.assets = self.APP_DIR + '/assets/'
+        self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE, pg.FULLSCREEN)
+        self.logo = pg.image.load(self.assets + logo)
+        pg.display.set_caption(TITLE)
+        pg.display.set_icon(self.logo)
+        self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
+        self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
+        self.theme_init(self.theme + 'options.json')
+        self.title_font = pg.font.Font(self.assets + title_font, SCRAMBLE_SIZE)
+        self.subtitle_font = pg.font.Font(self.theme + text_font, 35)
+        self.text_font = pg.font.Font(self.theme + text_font, 25)
+        self.init_sessions()
+        self.running = True
+        self.screens()
         
 
     def process_inputs(self):
@@ -54,7 +53,7 @@ class App:
     def screens(self):
         timer_screen = {
         'Panel': Box((94, DEFAULT_WINDOW_HEIGHT/2), (188, DEFAULT_WINDOW_HEIGHT+14), visible=True, fill_color=box_fill_color),
-        'Scramble': Label(((DEFAULT_WINDOW_WIDTH+188)/2, 150), (DEFAULT_WINDOW_WIDTH/2, DEFAULT_WINDOW_HEIGHT/4),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("7x7"), enabled=True),
+        'Scramble': Label(((DEFAULT_WINDOW_WIDTH+188)/2, 100), (DEFAULT_WINDOW_WIDTH/2, DEFAULT_WINDOW_HEIGHT/3),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("7x7"), enabled=True),
         'Time': TextBox(self.subtitle_font, text_color, center=((DEFAULT_WINDOW_WIDTH+188)/2, 260), size=(600,90), enterable=True, bordered=True, is_valid_entry=self.valid_time),
         'Logo': Image((94, 64), (128, 128), self.logo),
         'LogoText': TextBox(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
