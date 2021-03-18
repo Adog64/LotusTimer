@@ -289,6 +289,7 @@ class Panel(AppComponent):
         self.scrolled = 0
         self.items_top = 0
         self.items_bottom = 0
+        self.items_height = 0
     
     def render(self, window):
         self.surface.fill((0,0,0,0))
