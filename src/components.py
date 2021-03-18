@@ -300,6 +300,8 @@ class Panel(AppComponent):
             i.render(s)
             self.surface.blit(s, (i.rect.left, y))
             y += i.height + spacing
+            self.items_bottom = y
+            self.items_height = min(y, self.size[1])
         window.blit(self.surface, self.rect)
             
 
@@ -310,9 +312,9 @@ class ScrollBox(Panel):
         self.scroll_speed = scroll_speed
 
     def scroll_up(self):
-        if self.selected:
+        if self.selected and self.items_bottom > self.items_height:
             self.scrolled -= self.scroll_speed
     
     def scroll_down(self):
-        if self.selected:
+        if self.selected and self.scrolled < 0:
             self.scrolled += self.scroll_speed
