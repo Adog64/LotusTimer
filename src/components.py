@@ -1,6 +1,6 @@
 import pygame
 from settings import *
-from collections import Iterable
+from collections.abc import Iterable
 
 class Enterable:
     def __init__(self):
@@ -243,10 +243,11 @@ class Label(AppComponent):
         self.text_color = text_color
 
     def render(self, window):
-        y = self.rect.top
+        y = self.rect.bottom
         lineSpacing = -2
         text = self.text
         lines = []
+        ys = []
 
         # get the height of the font
         fontHeight = self.font.size("Tg")[1]
@@ -266,17 +267,22 @@ class Label(AppComponent):
             if i < len(text): 
                 i = text.rfind(" ", 0, i) + 1
 
-            # render the line and blit it to the surface
-            lines.append(self.font.render(text[:i], True, self.text_color))
-            y += fontHeight + lineSpacing
+            # render the line and get the height
+            lines.append(self.font.render(text[:i], True, self.text_color))            
+            y -= fontHeight + lineSpacing
+            ys.append(y)
 
             # remove the text we just blitted
             text = text[i:]
 
-        for i in lines[-1::-1]:
-            r = i.get_rect()
-
-            window.blit(i, (self.center[0] - r.width/2, self.center[1] - r.height/2))
+        #draw lines
+        print(ys)
+        for x in range(len(lines)):
+            c = lines[x]
+            print(c)
+            r = c.get_rect()
+            h = ys[-1 - x]
+            window.blit(c, (self.center - r.width/2, h))
 
         #return unused text
         return text
@@ -316,5 +322,8 @@ class ScrollBox(AppComponent):
                 for j in i:
                     j.render(row)
             
-                
+if __name__ == "__main__":
+    pygame.font.init()
+    l = Label((50,50), (100, 150), pygame.font.SysFont('Arial', 25), (100,100,100), 'OPAOFOAOOIAIONOIND OINWIADIBAOB DOBAWOBDOABWO DBOUABWODBAO UBDOBAW', True)
+    l.render(pygame.Surface((100,100)))
 
