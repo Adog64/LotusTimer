@@ -243,8 +243,8 @@ class Label(AppComponent):
         self.text_color = text_color
 
     def render(self, window):
-        lbl = pygame.Surface(self.size)#, pygame.SRCALPHA, 32).convert_alpha()
-        y = self.rect.top
+        lbl = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
+        y = 0
         lineSpacing = -2
         text = self.text
         bottom = 0
@@ -256,7 +256,7 @@ class Label(AppComponent):
             i = 1
 
             # determine if the row of text will be outside our area
-            if y + fontHeight > self.rect.bottom:
+            if y + fontHeight > self.size[1]:
                 break
 
             # determine maximum width of line
@@ -269,14 +269,13 @@ class Label(AppComponent):
 
             surface = self.font.render(text[:i], True, self.text_color)
             sr = surface.get_rect()
-            if sr.bottom > bottom:
-                bottom = sr.bottom
+            bottom += sr.bottom
             lbl.blit(surface, (lbl.get_width()/2 - sr.width/2, y))
             y += fontHeight + lineSpacing
 
             # remove the text we just blitted
             text = text[i:]
-        window.blit(lbl, (self.rect.left, self.rect.top))
+        window.blit(lbl, (self.rect.left, self.rect.top + (self.rect.height/2 - bottom)))
         return text
 
 

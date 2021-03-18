@@ -21,7 +21,13 @@ spotify = spotipy.Spotify(auth=token)
 devices = spotify.devices()
 device_id = devices['devices'][0]['id']
 
-track = spotify.search(input('Track: '))['tracks']
-print(track)
+search_result = spotify.search(input('Track: '))['tracks']['items'][0]
+track = search_result['uri']
+artist = search_result['artists'][0]['uri']
+# print(track)
+# print(artist)
+print(search_result)
+# recommendation = spotify.recommendations(seed_artists=artist, seed_tracks=track)
+# print(recommendation)
 
-spotify.start_playback(uris=[], device_id=device_id)
+# spotify.start_playback(uris=[track], device_id=device_id)

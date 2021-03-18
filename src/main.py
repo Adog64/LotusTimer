@@ -53,7 +53,7 @@ class App:
     def screens(self):
         timer_screen = {
         'Panel': Box((94, DEFAULT_WINDOW_HEIGHT/2), (188, DEFAULT_WINDOW_HEIGHT+14), visible=True, fill_color=box_fill_color),
-        'Scramble': Label(((DEFAULT_WINDOW_WIDTH+188)/2, 100), (DEFAULT_WINDOW_WIDTH/2, DEFAULT_WINDOW_HEIGHT/3),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("7x7"), enabled=True),
+        'Scramble': Label(((DEFAULT_WINDOW_WIDTH+188)/2, 200), (DEFAULT_WINDOW_WIDTH/2, DEFAULT_WINDOW_HEIGHT/3),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("3x3"), enabled=True),
         'Time': TextBox(self.subtitle_font, text_color, center=((DEFAULT_WINDOW_WIDTH+188)/2, 260), size=(600,90), enterable=True, bordered=True, is_valid_entry=self.valid_time),
         'Logo': Image((94, 64), (128, 128), self.logo),
         'LogoText': TextBox(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
