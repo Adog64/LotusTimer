@@ -4,6 +4,12 @@ DEFAULT_WINDOW_WIDTH = 1600
 DEFAULT_WINDOW_HEIGHT = 900
 DEFAULT_WINDOW_SIZE = (DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)
 
+#time constants
+H_MS = 1000*60*60
+M_MS = 1000*60
+S_MS = 1000
+
+
 #style settings
 title_font = 'logo.ttf'
 text_font = 'arial.ttf'

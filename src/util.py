@@ -74,7 +74,15 @@ class SessionManager:
         os.remove(self.path)
         with open(self.path, 'w') as f:
             json.dump(self.data, f)
-       
+    
+    def get_times(self):
+        s = self.data['session'+str(self.session_number)]
+        t = []
+        idx = 1
+        for i in s:
+            t.append([i[0][0], i[0][1], idx])
+            idx += 1
+        return t
     
     def change_session(self, session=1):
         self.session_number = session

@@ -33,11 +33,10 @@ class AppComponent:
         return self.coord
     
     def select(self):
-        pass
+        self.selected = True
 
     def deselect(self):
-        pass
-
+        self.selected = False
     @classmethod
     def valid(cls, *n):
         return True
@@ -236,11 +235,13 @@ class Screen(AppComponent):
 
 
 class Label(AppComponent):
-    def __init__(self, center, size, font, text_color, text, enabled):
+    def __init__(self, center, size, font, text_color, text, enabled=True):
         super().__init__(center=center, size=size, enabled=enabled)
         self.font = font
         self.text = text
         self.text_color = text_color
+        self.fontHeight = self.font.size("Tg")[1]
+        self.height = self.fontHeight
 
     def render(self, window):
         lbl = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
@@ -250,13 +251,13 @@ class Label(AppComponent):
         bottom = 0
 
         # get the height of the font
-        fontHeight = self.font.size("Tg")[1]
+        
 
         while text:
             i = 1
 
             # determine if the row of text will be outside our area
-            if y + fontHeight > self.size[1]:
+            if y + self.fontHeight > self.size[1]:
                 break
 
             # determine maximum width of line
@@ -271,7 +272,7 @@ class Label(AppComponent):
             sr = surface.get_rect()
             bottom += sr.bottom
             lbl.blit(surface, (lbl.get_width()/2 - sr.width/2, y))
-            y += fontHeight + lineSpacing
+            y += self.fontHeight + lineSpacing
 
             # remove the text we just blitted
             text = text[i:]
@@ -280,35 +281,38 @@ class Label(AppComponent):
 
 
 class Panel(AppComponent):
-    def __init__(self, center, size, enabled, font, items=[]):
+    def __init__(self, center, size, enabled=True, items=[]):
         super().__init__(center=center, size=size, enabled=enabled)
         super().__init__(center=center, size=size, enabled=enabled)
-        self.surface = pygame.Surface(size)
+        self.surface = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
         self.items = items
-        self.font = font
+        self.scrolled = 0
+        self.items_top = 0
+        self.items_bottom = 0
     
     def render(self, window):
-        y = 25
+        self.surface.fill((0,0,0,0))
+        y = self.scrolled
         c = 0
+        spacing = 10
         for i in self.items:
-            row = pygame.Surface((self.width, 20))
-            if isinstance(i, Iterable):
-                for j in i:
-                    pass                  
-            c += 1
+            s = pygame.Surface(i.size, pygame.SRCALPHA, 32).convert_alpha()
+            i.render(s)
+            self.surface.blit(s, (i.rect.left, y))
+            y += i.height + spacing
         window.blit(self.surface, self.rect)
             
 
 
-class ScrollBox(AppComponent):
-    def __init__(self, center=(0,0), size=(0,0), enabled=True, items=[]):
-        super().__init__(center=center, size=size, enabled=enabled)
-        self.surface = pygame.Surface(size)
-        self.items = items
+class ScrollBox(Panel):
+    def __init__(self, center, size, enabled, scroll_speed=5, items=[]):
+        super().__init__(center, size, enabled=enabled, items=items)
+        self.scroll_speed = scroll_speed
+
+    def scroll_up(self):
+        if self.selected:
+            self.scrolled -= self.scroll_speed
     
-    def render(self, window):
-        for i in self.items:
-            row = pygame.Surface((self.width, 20))
-            if isinstance(i, Iterable):             
-                for j in i:
-                    j.render(row)
+    def scroll_down(self):
+        if self.selected:
+            self.scrolled += self.scroll_speed

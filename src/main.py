@@ -1,4 +1,4 @@
-from os import path
+from os import get_terminal_size, path
 import pygame as pg
 import sys
 from pygame.locals import *
@@ -35,7 +35,7 @@ class App:
                 if event.type == QUIT:
                     pg.quit()
                     sys.exit()
-                if event.type == MOUSEBUTTONUP and event:
+                if event.type == MOUSEBUTTONUP:
                     self.screen.clicks(pygame.mouse.get_pos())
                 if event.type == VIDEORESIZE:
                     self.window = pg.display.set_mode((event.w, event.h), pg.RESIZABLE)
@@ -49,6 +49,12 @@ class App:
                             self.screen.components['Scramble'].text = ScrambleGenerator.generate_scramble()
                         elif event.key == K_BACKSPACE:
                             self.screen.components['Time'].backspace()
+                if event.type == pg.MOUSEWHEEL:
+                    if event.y > 0 and 'Times' in self.screen.get_selected():
+                        self.screen.components['Times'].scroll_up()
+                    if event.y < 0 and 'Times' in self.screen.get_selected():
+                        self.screen.components['Times'].scroll_down()
+                    
 
     def screens(self):
         timer_screen = {
@@ -59,7 +65,8 @@ class App:
         'LogoText': TextBox(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
         'TimeBox': Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True),
         'QuickStatsBox': Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True),
-        'Quit': Button((100, DEFAULT_WINDOW_WIDTH-100), (75, 75), enabled=True, text='X', when_pressed=self.end, text_font=self.text_font)
+        'Quit': Button((100, DEFAULT_WINDOW_WIDTH-100), (75, 75), enabled=True, text='X', when_pressed=self.end, text_font=self.text_font),
+        'Times': ScrollBox((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25)
         }
         self.screen = Screen(((DEFAULT_WINDOW_WIDTH+188)/2, DEFAULT_WINDOW_HEIGHT/2), DEFAULT_WINDOW_SIZE, True, timer_screen)
 
@@ -88,6 +95,33 @@ class App:
         self.sessions = sessions
         self.session = sessions[0]
 
+    def get_time_labels(self):
+        times = self.session.get_times()
+        labels = []
+        if len(times) > 0:
+            for t in times:
+                penalty = t[0]
+                time_ms = t[1]
+                idx = t[2]
+                hours = int(time_ms / H_MS)
+                time_ms -= hours * H_MS
+                minutes = int(time_ms / M_MS)
+                time_ms -= minutes * M_MS
+                seconds = time_ms / S_MS
+                ts = ''
+                if hours != 0:
+                    ts = str(hours) + ':' + str(minutes) + ':'
+                elif minutes != 0:
+                    ts = str(minutes) + ':'
+                ts = (ts + "%.2f" % seconds)
+                if penalty == 2000:
+                    ts += ' (+2)'
+                if penalty == -1:
+                    ts += ' (dnf)'
+                labels.append(Label((75, 40), (150, 80), self.text_font, text_color, str(idx) + '.   ' + ts))
+        labels = labels[-1::-1]
+        return labels
+
     def publish_time(self, score, scramble):
         penalty = 0
         model = '00:00:00.00'
@@ -99,8 +133,8 @@ class App:
             score = score[:-3]
         score = self.time_ms(score)
         timestamp = int(time.time())
-        print([penalty, score], scramble, timestamp)
         self.session.add_time([penalty, score], scramble, timestamp)
+        self.screen.components['Times'].items = self.get_time_labels()
 
     def time_ms(self, time):
         f = '00:00:00.00'
