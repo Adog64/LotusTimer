@@ -115,5 +115,5 @@ class SpotifyPlayer:
         
 
 if __name__ == '__main__':
-    s = SpotifyPlayer()
-    s.play_song('December 1963')
+    g = ScrambleGenerator()
+    print(g.opposite_set(R_MOVES))

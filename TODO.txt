@@ -1,9 +1,9 @@
 ****MUST HAVE****
----scrambles - fix useless moves---
+scrambles - fix useless moves - WIP
 --times--
-logs
+---logs----
 --name/brand recognition--
-average
+---average---
 import/export
 time trends
 
@@ -16,7 +16,7 @@ speed team
 friends list
 discord integration
 cfop trainer
-*maybe roux trainer
-spotify integration - spotipy
+roux trainer
+spotify integration - WIP
 highlights
 inspections

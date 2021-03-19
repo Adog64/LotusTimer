@@ -235,13 +235,14 @@ class Screen(AppComponent):
 
 
 class Label(AppComponent):
-    def __init__(self, center, size, font, text_color, text, enabled=True):
+    def __init__(self, center, size, font, text_color, text, enabled=True, just='c'):
         super().__init__(center=center, size=size, enabled=enabled)
         self.font = font
         self.text = text
         self.text_color = text_color
         self.fontHeight = self.font.size("Tg")[1]
         self.height = self.fontHeight
+        self.just = just
 
     def render(self, window):
         lbl = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
@@ -271,7 +272,10 @@ class Label(AppComponent):
             surface = self.font.render(text[:i], True, self.text_color)
             sr = surface.get_rect()
             bottom += sr.bottom
-            lbl.blit(surface, (lbl.get_width()/2 - sr.width/2, y))
+            if self.just == 'c':
+                lbl.blit(surface, (lbl.get_width()/2 - sr.width/2, y))
+            elif self.just == 'l':
+                lbl.blit(surface, self.rect)
             y += self.fontHeight + lineSpacing
 
             # remove the text we just blitted

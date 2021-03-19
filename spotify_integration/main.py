@@ -30,4 +30,4 @@ print(search_result)
 # recommendation = spotify.recommendations(seed_artists=artist, seed_tracks=track)
 # print(recommendation)
 
-# spotify.start_playback(uris=[track], device_id=device_id)
+spotify.start_playback(uris=[track], device_id=device_id)

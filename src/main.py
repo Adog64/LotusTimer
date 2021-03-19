@@ -8,6 +8,7 @@ from components import *
 from util import *
 import json
 import time
+from statistics import mean
 
 class App:
     def __init__(self):
@@ -15,9 +16,9 @@ class App:
         pg.font.init()
         self.APP_DIR = path.split(path.dirname(__file__))[0]
         self.assets = self.APP_DIR + '/assets/'
-        self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE, pg.FULLSCREEN)
+        self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE)
         self.logo = pg.image.load(self.assets + logo)
-        pg.display.set_caption(TITLE)
+        pg.display.set_caption(TITLE + ' ' + VERSION)
         pg.display.set_icon(self.logo)
         self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
         self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
@@ -66,7 +67,8 @@ class App:
         'TimeBox': Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True),
         'QuickStatsBox': Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True),
         'Quit': Button((100, DEFAULT_WINDOW_WIDTH-100), (75, 75), enabled=True, text='X', when_pressed=self.end, text_font=self.text_font),
-        'Times': ScrollBox((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25)
+        'Times': ScrollBox((188 + 325, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25),
+        'QuickStats': Panel((DEFAULT_WINDOW_WIDTH - 405, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), items=self.stat_labels())
         }
         self.screen = Screen(((DEFAULT_WINDOW_WIDTH+188)/2, DEFAULT_WINDOW_HEIGHT/2), DEFAULT_WINDOW_SIZE, True, timer_screen)
 
@@ -103,22 +105,14 @@ class App:
                 penalty = t[0]
                 time_ms = t[1]
                 idx = t[2]
-                hours = int(time_ms / H_MS)
-                time_ms -= hours * H_MS
-                minutes = int(time_ms / M_MS)
-                time_ms -= minutes * M_MS
-                seconds = time_ms / S_MS
-                ts = ''
-                if hours != 0:
-                    ts = str(hours) + ':' + str(minutes) + ':'
-                elif minutes != 0:
-                    ts = str(minutes) + ':'
-                ts = (ts + "%.2f" % seconds)
+                if penalty > 0:
+                    time_ms += penalty
+                ts = self.format_time(time_ms)
                 if penalty == 2000:
                     ts += ' (+2)'
                 if penalty == -1:
-                    ts += ' (dnf)'
-                labels.append(Label((75, 40), (150, 80), self.text_font, text_color, str(idx) + '.   ' + ts))
+                    ts = 'DNF'
+                labels.append(Label((100, 40), (200, 80), self.text_font, text_color, str(idx) + '.   ' + ts, just='l'))
         labels = labels[-1::-1]
         return labels
 
@@ -132,9 +126,74 @@ class App:
             penalty = -1
             score = score[:-3]
         score = self.time_ms(score)
-        timestamp = int(time.time())
-        self.session.add_time([penalty, score], scramble, timestamp)
-        self.screen.components['Times'].items = self.get_time_labels()
+        if score > 0  or penalty == -1:
+            timestamp = int(time.time())
+            self.session.add_time([penalty, score], scramble, timestamp)
+            self.screen.components['Times'].items = self.get_time_labels()
+            self.screen.components['QuickStats'].items = self.stat_labels()
+
+    def format_time(self, time_ms):
+        hours = int(time_ms / H_MS)
+        time_ms -= hours * H_MS
+        minutes = int(time_ms / M_MS)
+        time_ms -= minutes * M_MS
+        seconds = time_ms / S_MS
+        ts = ''
+        if hours != 0:
+            ts = str(hours) + ':' + str(minutes) + ':'
+        elif minutes != 0:
+            ts = str(minutes) + ':'
+        ts = (ts + "%.2f" % seconds)
+        return ts
+
+    def stat_labels(self):
+        times = self.session.get_times()
+        times = times[-1::-1]
+        best = ''
+        ao5 = []
+        ao12 = []
+        idx0 = times[0][2]
+        sumt = 0
+        solves = 0
+        avg = ''
+        for t in times:
+            penalty = t[0]
+            time_ms = t[1]
+            idx = t[2]
+            if penalty > 0:
+                time_ms += penalty
+            if (best == '' or  time_ms < best) and time_ms > 0:
+                best = time_ms
+            if idx0 - idx < 5:
+                ao5.append(time_ms)
+            if idx0 - idx < 12:
+                ao12.append(time_ms)
+            if time_ms > 0 and penalty != -1:
+                sumt += time_ms
+                solves += 1
+        if solves > 0:
+            avg = sumt/solves
+            avg = self.format_time(avg)
+        if len(ao5) == 5:
+            ao5 = mean(sorted(ao5)[1:-1])
+            ao5 = self.format_time(ao5)
+        else:
+            ao5 = ''
+        if len(ao12) == 12:
+            ao12 = mean(sorted(ao12)[1:-1])
+            ao12 = self.format_time(ao12)
+        else:
+            ao12 = ''
+        if best != '':
+            best = self.format_time(best)
+        labels = [
+            Label((100, 40), (200, 80), self.text_font, text_color, f'Best:   {best}', just='l'),
+            Label((100, 40), (200, 80), self.text_font, text_color, f'Mean:   {avg}', just='l'),
+            Label((100, 40), (200, 80), self.text_font, text_color, f'Ao5:   {ao5}', just='l'),
+            Label((100, 40), (200, 80), self.text_font, text_color, f'Ao12:    {ao12}', just='l'),
+            Label((100, 40), (200, 80), self.text_font, text_color, f'Solved:   {solves}/{len(times)}', just='l')]
+        return labels
+                
 
     def time_ms(self, time):
         f = '00:00:00.00'
