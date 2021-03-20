@@ -70,13 +70,22 @@ class SessionManager:
         self.puzzle = type
 
     def add_time(self, time, scramble, timestamp):
-        self.data['session'+str(self.session_number)].append([time, scramble, timestamp])
+        self.data[f'session{self.session_number}'].append([time, scramble, timestamp])
         os.remove(self.path)
         with open(self.path, 'w') as f:
             json.dump(self.data, f)
-    
+
+    def remove_time(self, index):
+        try:
+            self.data[f'session{self.session_number}'].remove(index)
+            os.remove(self.path)
+            with open(self.path, 'w') as f:
+                json.dump(self.data, f)
+        except IndexError:
+            return
+        
     def get_times(self):
-        s = self.data['session'+str(self.session_number)]
+        s = self.data[f'session{self.session_number}']
         t = []
         idx = 1
         for i in s:

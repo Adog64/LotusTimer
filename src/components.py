@@ -251,9 +251,6 @@ class Label(AppComponent):
         text = self.text
         bottom = 0
 
-        # get the height of the font
-        
-
         while text:
             i = 1
 

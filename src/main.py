@@ -116,6 +116,9 @@ class App:
                 labels.append(Label((100, 40), (200, 80), self.text_font, text_color, str(idx) + '.   ' + ts, just='l'))
         labels = labels[-1::-1]
         return labels
+    
+    def remove_time(self, index):
+        self.session.remove_time(index)
 
     def publish_time(self, score, scramble):
         penalty = 0
@@ -203,8 +206,7 @@ class App:
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Ao12:    {ao12}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Mean:   {avg}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Solved:   {solve_rate}', just='l')]
-        return labels
-                
+        return labels           
 
     def time_ms(self, time):
         f = '00:00:00.00'
