@@ -156,7 +156,7 @@ class Box(AppComponent):
 #@param text - text displayed on button
 #@param mode - either 'i' or 't' for image and text modes respectively
 class Button(AppComponent):
-    def __init__(self, center, size, enabled=False, image=None, text='', mode='t', toggle=True, when_pressed=print, when_unpressed=print, text_font=None):
+    def __init__(self, center, size, enabled=False, image=None, text='', mode='t', toggle=True, when_pressed=print, when_unpressed=print, text_font=None, wp_arg=None):
         super().__init__(center=center, size=size, enabled=enabled)
         if image != None and mode == 'i':
             self.image = Image(center=center, size=(size[0] - 2*button_img_gap, size[1] - 2*button_img_gap), image=image)
@@ -167,6 +167,7 @@ class Button(AppComponent):
         self.mode = mode
         self.functions = {'on':when_pressed}
         self.toggle = toggle
+        self.wp_arg = wp_arg
         if toggle:
             self.functions['off'] = when_unpressed
         
@@ -178,7 +179,10 @@ class Button(AppComponent):
         self.functions['off'] = function
 
     def select(self):
-        self.functions['on']()
+        if wp_arg != None:
+            self.functions['on'](self.wp_arg)
+        else:
+            self.functions['on']()
 
     def render(self, window):
         self.box.render(window)

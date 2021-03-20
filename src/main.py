@@ -98,9 +98,9 @@ class App:
         self.sessions = sessions
         self.session = sessions[0]
 
-    def get_time_labels(self):
+    def get_time_elements(self):
         times = self.session.get_times()
-        labels = []
+        elelments = []
         if len(times) > 0:
             for t in times:
                 penalty = t[0]
@@ -113,11 +113,13 @@ class App:
                     ts += ' (+2)'
                 if penalty == -1:
                     ts = 'DNF'
-                labels.append(Label((100, 40), (200, 80), self.text_font, text_color, str(idx) + '.   ' + ts, just='l'))
-        labels = labels[-1::-1]
-        return labels
+                elelments.append([
+                    Label((100, 40), (200, 80), self.text_font, text_color, str(idx) + '.   ' + ts, just='l'),
+                    Button((300, 40), (100, 80), self.text_font, text='Delete', toggle=False, when_pressed=self.delete_time_button_press, wp_arg=idx)])
+        elelments = elelments[-1::-1]
+        return elelments
     
-    def remove_time(self, index):
+    def delete_time_button_press(self, index):
         self.session.remove_time(index)
 
     def publish_time(self, score, scramble):
