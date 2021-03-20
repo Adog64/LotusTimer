@@ -20,7 +20,7 @@ class App:
         self.assets = self.APP_DIR + '/assets/'
         self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE)
         self.logo = pg.image.load(f"{self.assets}{logo}")
-        pg.display.set_caption(TITLE + ' ' + VERSION)
+        pg.display.set_caption(TITLE)
         pg.display.set_icon(pg.image.load(f"{self.assets}lotus_round.png"))
         self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
         self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
