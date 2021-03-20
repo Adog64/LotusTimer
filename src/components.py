@@ -285,7 +285,7 @@ class Label(AppComponent):
 
 
 class Panel(AppComponent):
-    def __init__(self, center, size, enabled=True, items=[]):
+    def __init__(self, center, size, enabled=True, items=[], columns=1, column_width=100):
         super().__init__(center=center, size=size, enabled=enabled)
         super().__init__(center=center, size=size, enabled=enabled)
         self.surface = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
@@ -294,19 +294,31 @@ class Panel(AppComponent):
         self.items_top = 0
         self.items_bottom = 0
         self.items_height = 0
+        self.columns = columns
+        self.column_width = column_width
     
     def render(self, window):
         self.surface.fill((0,0,0,0))
         y = self.scrolled
         c = 0
         spacing = 10
+        col = 0
+        ipc = int(len(self.items)/self.columns)
+        row = 0
+        if len(self.items)%2 != 0:
+            row -= 1
         for i in self.items:
             s = pygame.Surface(i.size, pygame.SRCALPHA, 32).convert_alpha()
             i.render(s)
-            self.surface.blit(s, (i.rect.left, y))
+            self.surface.blit(s, (i.rect.left + col*self.column_width, y))
             y += i.height + spacing
             self.items_bottom = y
             self.items_height = min(y, self.size[1])
+            row += 1
+            if row == ipc:
+                col += 1
+                row = 0
+                y = self.scrolled
         window.blit(self.surface, self.rect)
             
 

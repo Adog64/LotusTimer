@@ -70,7 +70,7 @@ class App:
         'QuickStatsBox': Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True),
         'Quit': Button((100, DEFAULT_WINDOW_WIDTH-100), (75, 75), enabled=True, text='X', when_pressed=self.end, text_font=self.text_font),
         'Times': ScrollBox((188 + 325, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25),
-        'QuickStats': Panel((DEFAULT_WINDOW_WIDTH - 405, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), items=self.stat_labels())
+        'QuickStats': Panel((DEFAULT_WINDOW_WIDTH - 405, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
         }
         self.screen = Screen(((DEFAULT_WINDOW_WIDTH+188)/2, DEFAULT_WINDOW_HEIGHT/2), DEFAULT_WINDOW_SIZE, True, timer_screen)
 
