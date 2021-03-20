@@ -1,11 +1,13 @@
 from os import get_terminal_size, path
+from os import environ
+environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame as pg
 import sys
 from pygame.locals import *
 from random import randint
-from settings import *
-from components import *
-from util import *
+from src.settings import *
+from src.components import *
+from src.util import *
 import json
 import time
 from statistics import mean
@@ -14,12 +16,12 @@ class App:
     def __init__(self):
         pg.display.init()
         pg.font.init()
-        self.APP_DIR = path.split(path.dirname(__file__))[0]
+        self.APP_DIR = path.dirname(__file__)
         self.assets = self.APP_DIR + '/assets/'
         self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE)
-        self.logo = pg.image.load(self.assets + logo)
+        self.logo = pg.image.load(f"{self.assets}{logo}")
         pg.display.set_caption(TITLE + ' ' + VERSION)
-        pg.display.set_icon(self.logo)
+        pg.display.set_icon(pg.image.load(f"{self.assets}lotus_round.png"))
         self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
         self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
         self.theme_init(self.theme + 'options.json')
@@ -78,9 +80,6 @@ class App:
         #render components
         self.screen.render(self.window)
         pg.display.update()
-
-    def test_button(self):
-        print('pressed')
 
     def theme_init(self, path):
         global background_color, text_color, border_color, box_fill_color
@@ -152,10 +151,13 @@ class App:
         best = ''
         ao5 = []
         ao12 = []
-        idx0 = times[0][2]
+        idx0 = 0
+        if len(times) > 0:
+            idx0 = times[0][2]
         sumt = 0
         solves = 0
         avg = ''
+        solve_rate = ''
         for t in times:
             penalty = t[0]
             time_ms = t[1]
@@ -174,6 +176,7 @@ class App:
         if solves > 0:
             avg = sumt/solves
             avg = self.format_time(avg)
+            solve_rate = f"{solves}/{len(times)}"
         if len(ao5) == 5:
             ao5 = mean(sorted(ao5)[1:-1])
             ao5 = self.format_time(ao5)
@@ -191,7 +194,7 @@ class App:
             Label((100, 40), (200, 80), self.text_font, text_color, f'Mean:   {avg}', just='l'),
             Label((100, 40), (200, 80), self.text_font, text_color, f'Ao5:   {ao5}', just='l'),
             Label((100, 40), (200, 80), self.text_font, text_color, f'Ao12:    {ao12}', just='l'),
-            Label((100, 40), (200, 80), self.text_font, text_color, f'Solved:   {solves}/{len(times)}', just='l')]
+            Label((100, 40), (200, 80), self.text_font, text_color, f'Solved:   {solve_rate}', just='l')]
         return labels
                 
 
@@ -243,9 +246,3 @@ class App:
     
     def end(self):
         self.running = False
-
-if __name__ == '__main__':
-    a = App()
-    while a.running:
-        a.process_inputs()
-        a.draw()

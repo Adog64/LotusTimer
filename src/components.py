@@ -1,5 +1,5 @@
 import pygame
-from settings import *
+from src.settings import *
 from collections.abc import Iterable
 
 class Enterable:

@@ -1,7 +1,7 @@
 import os
 import pygame
 import random
-from settings import *
+from src.settings import *
 import json
 import configparser
 import spotipy
@@ -110,10 +110,4 @@ class SpotifyPlayer:
         self.spotify.shuffle(state=True)
         genres = self.spotify.recommendation_genre_seeds()
         queue = self.spotify.recommendations(seed_genres='reggae')
-        print(queue)
         self.spotify.add_to_queue(queue)
-        
-
-if __name__ == '__main__':
-    g = ScrambleGenerator()
-    print(g.opposite_set(R_MOVES))
