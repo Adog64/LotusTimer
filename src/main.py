@@ -26,10 +26,11 @@ class App:
         self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
         self.theme_init(self.theme + 'options.json')
         self.title_font = pg.font.Font(self.assets + title_font, SCRAMBLE_SIZE)
-        self.subtitle_font = pg.font.Font(self.theme + text_font, 35)
+        self.subtitle_font = pg.font.Font(self.theme + text_font, 30)
         self.text_font = pg.font.Font(self.theme + text_font, 25)
         self.init_sessions()
         self.running = True
+        self.timec = len(self.session.get_times())
         self.screens()
         
 
@@ -60,19 +61,20 @@ class App:
                     
 
     def screens(self):
-        timer_screen = {
+        self.timer_screen = {
         'Panel': Box((94, DEFAULT_WINDOW_HEIGHT/2), (188, DEFAULT_WINDOW_HEIGHT+14), visible=True, fill_color=box_fill_color),
         'Scramble': Label(((DEFAULT_WINDOW_WIDTH+188)/2, 200), (DEFAULT_WINDOW_WIDTH/2, DEFAULT_WINDOW_HEIGHT/3),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("3x3"), enabled=True),
         'Time': TextBox(self.subtitle_font, text_color, center=((DEFAULT_WINDOW_WIDTH+188)/2, 260), size=(600,90), enterable=True, bordered=True, is_valid_entry=self.valid_time),
         'Logo': Image((94, 64), (128, 128), self.logo),
         'LogoText': TextBox(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
-        'TimeBox': Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True),
-        'QuickStatsBox': Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True),
-        'Quit': Button((100, DEFAULT_WINDOW_WIDTH-100), (75, 75), enabled=True, text='X', when_pressed=self.end, text_font=self.text_font),
-        'Times': ScrollBox((188 + 325, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25),
-        'QuickStats': Panel((DEFAULT_WINDOW_WIDTH - 405, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
+        'Quit': Button((100, DEFAULT_WINDOW_WIDTH-100), (75, 75), enabled=True, text='X', when_pressed=self.end, text_font=self.text_font)
         }
-        self.screen = Screen(((DEFAULT_WINDOW_WIDTH+188)/2, DEFAULT_WINDOW_HEIGHT/2), DEFAULT_WINDOW_SIZE, True, timer_screen)
+        if self.timec > 0:
+            self.timer_screen['TimeBox'] = Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True)
+            self.timer_screen['QuickStatsBox'] = Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True)
+            self.timer_screen['Times'] = ScrollBox((188 + 325, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25)
+            self.timer_screen['QuickStats'] = Panel((DEFAULT_WINDOW_WIDTH - 405, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
+        self.screen = Screen(((DEFAULT_WINDOW_WIDTH+188)/2, DEFAULT_WINDOW_HEIGHT/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
 
     def draw(self):
         self.window.fill(background_color)
@@ -125,6 +127,12 @@ class App:
             penalty = -1
             score = score[:-3]
         score = self.time_ms(score)
+        if self.timec == 0:
+            self.timer_screen['TimeBox'] = Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True)
+            self.timer_screen['QuickStatsBox'] = Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True)
+            self.timer_screen['Times'] = ScrollBox((188 + 325, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25)
+            self.timer_screen['QuickStats'] = Panel((DEFAULT_WINDOW_WIDTH - 405, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
+        self.timec += 1
         if score > 0  or penalty == -1:
             timestamp = int(time.time())
             self.session.add_time([penalty, score], scramble, timestamp)
@@ -152,7 +160,7 @@ class App:
         ao5 = []
         ao12 = []
         idx0 = 0
-        if len(times) > 0:
+        if self.timec > 0:
             idx0 = times[0][2]
         sumt = 0
         solves = 0
@@ -176,7 +184,7 @@ class App:
         if solves > 0:
             avg = sumt/solves
             avg = self.format_time(avg)
-            solve_rate = f"{solves}/{len(times)}"
+            solve_rate = f"{solves}/{self.timec}"
         if len(ao5) == 5:
             ao5 = mean(sorted(ao5)[1:-1])
             ao5 = self.format_time(ao5)
@@ -190,11 +198,11 @@ class App:
         if best != '':
             best = self.format_time(best)
         labels = [
-            Label((100, 40), (200, 80), self.text_font, text_color, f'Best:   {best}', just='l'),
-            Label((100, 40), (200, 80), self.text_font, text_color, f'Mean:   {avg}', just='l'),
-            Label((100, 40), (200, 80), self.text_font, text_color, f'Ao5:   {ao5}', just='l'),
-            Label((100, 40), (200, 80), self.text_font, text_color, f'Ao12:    {ao12}', just='l'),
-            Label((100, 40), (200, 80), self.text_font, text_color, f'Solved:   {solve_rate}', just='l')]
+            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Best:   {best}', just='l'),
+            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Ao5:   {ao5}', just='l'),
+            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Ao12:    {ao12}', just='l'),
+            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Mean:   {avg}', just='l'),
+            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Solved:   {solve_rate}', just='l')]
         return labels
                 
 
