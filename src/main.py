@@ -1,4 +1,4 @@
-from os import get_terminal_size, path
+from os import path
 from os import environ
 environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame as pg
@@ -14,6 +14,7 @@ import statistics as stat
 
 class App:
     def __init__(self):
+        global window_width, window_height
         pg.display.init()
         pg.font.init()
         self.APP_DIR = path.dirname(__file__)
@@ -22,6 +23,7 @@ class App:
         self.logo = pg.image.load(f"{self.assets}{logo}")
         pg.display.set_caption(TITLE)
         pg.display.set_icon(pg.image.load(f"{self.assets}lotus_round.png"))
+        window_width, window_height = self.window.get_size()
         self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
         self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
         self.theme_init(self.theme + 'options.json')
@@ -62,19 +64,19 @@ class App:
 
     def screens(self):
         self.timer_screen = {
-        'Panel': Box((94, DEFAULT_WINDOW_HEIGHT/2), (188, DEFAULT_WINDOW_HEIGHT+14), visible=True, fill_color=box_fill_color),
-        'Scramble': Label(((DEFAULT_WINDOW_WIDTH+188)/2, 200), (DEFAULT_WINDOW_WIDTH/2, DEFAULT_WINDOW_HEIGHT/3),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("3x3"), enabled=True),
-        'Time': TextBox(self.subtitle_font, text_color, center=((DEFAULT_WINDOW_WIDTH+188)/2, 260), size=(600,90), enterable=True, bordered=True, is_valid_entry=self.valid_time),
+        'Panel': Box((94, window_height/2), (188, window_height+14), visible=True, fill_color=box_fill_color),
+        'Scramble': Label(((window_width+188)/2, 200), (window_width/2, window_height/3),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("3x3"), enabled=True),
+        'Time': TextBox(self.subtitle_font, text_color, center=((window_width+188)/2, 260), size=(600,90), enterable=True, bordered=True, is_valid_entry=self.valid_time),
         'Logo': Image((94, 64), (128, 128), self.logo),
         'LogoText': TextBox(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
-        'Quit': Button((94, DEFAULT_WINDOW_HEIGHT-40), (100, 75), enabled=True, text='Quit', when_pressed=self.end, text_font=self.text_font, text_color=text_color)
+        'Quit': Button((94, window_height-40), (100, 75), enabled=True, text='Quit', when_pressed=self.end, text_font=self.text_font, text_color=text_color)
         }
         if self.timec > 0:
-            self.timer_screen['TimeBox'] = Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True)
-            self.timer_screen['QuickStatsBox'] = Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True)
-            self.timer_screen['Times'] = ScrollBox((188 + 325, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=25)
-            self.timer_screen['QuickStats'] = Panel((DEFAULT_WINDOW_WIDTH - 405, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
-        self.screen = Screen(((DEFAULT_WINDOW_WIDTH+188)/2, DEFAULT_WINDOW_HEIGHT/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
+            self.timer_screen['TimeBox'] = Box((188 + 305, window_height-220), (450, 400), visible=True)
+            self.timer_screen['QuickStatsBox'] = Box((window_width - 425, window_height - 220), (750, 400), visible=True)
+            self.timer_screen['Times'] = ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=25)
+            self.timer_screen['QuickStats'] = Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
+        self.screen = Screen(((window_width+188)/2, window_height/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
 
     def draw(self):
         self.window.fill(background_color)
@@ -133,10 +135,10 @@ class App:
             score = score[:-3]
         score = self.time_ms(score)
         if self.timec == 0:
-            self.timer_screen['TimeBox'] = Box((188 + 305, DEFAULT_WINDOW_HEIGHT-220), (450, 400), visible=True)
-            self.timer_screen['QuickStatsBox'] = Box((DEFAULT_WINDOW_WIDTH - 425, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), visible=True)
-            self.timer_screen['Times'] = ScrollBox((188 + 325, DEFAULT_WINDOW_HEIGHT-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25)
-            self.timer_screen['QuickStats'] = Panel((DEFAULT_WINDOW_WIDTH - 405, DEFAULT_WINDOW_HEIGHT - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
+            self.timer_screen['TimeBox'] = Box((188 + 305, window_height-220), (450, 400), visible=True)
+            self.timer_screen['QuickStatsBox'] = Box((window_width - 425, window_height - 220), (750, 400), visible=True)
+            self.timer_screen['Times'] = ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25)
+            self.timer_screen['QuickStats'] = Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
         self.timec += 1
         if score > 0  or penalty == -1:
             timestamp = int(time.time())
