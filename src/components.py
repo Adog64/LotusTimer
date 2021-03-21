@@ -156,7 +156,7 @@ class Box(AppComponent):
 #@param text - text displayed on button
 #@param mode - either 'i' or 't' for image and text modes respectively
 class Button(AppComponent):
-    def __init__(self, center, size, enabled=False, image=None, text='', mode='t', toggle=True, when_pressed=print, when_unpressed=print, text_font=None, wp_arg=None):
+    def __init__(self, center, size, enabled=False, image=None, text='', mode='t', toggle=True, when_pressed=print, when_unpressed=print, text_font=None, wp_arg=None, text_color=(0,0,0)):
         super().__init__(center=center, size=size, enabled=enabled)
         if image != None and mode == 'i':
             self.image = Image(center=center, size=(size[0] - 2*button_img_gap, size[1] - 2*button_img_gap), image=image)
@@ -179,7 +179,7 @@ class Button(AppComponent):
         self.functions['off'] = function
 
     def select(self):
-        if wp_arg != None:
+        if self.wp_arg != None:
             self.functions['on'](self.wp_arg)
         else:
             self.functions['on']()
@@ -309,10 +309,26 @@ class Panel(AppComponent):
         if len(self.items)%2 != 0:
             row -= 1
         for i in self.items:
-            s = pygame.Surface(i.size, pygame.SRCALPHA, 32).convert_alpha()
-            i.render(s)
-            self.surface.blit(s, (i.rect.left + col*self.column_width, y))
-            y += i.height + spacing
+            if isinstance(i, Iterable): 
+                left = i[0].rect.left
+                right = i[0].rect.right
+                top = i[0].rect.top
+                bottom = i[0].rect.bottom
+                for j in i:
+                    left = min(j.rect.left, left)
+                    right = max(j.rect.right, right)
+                    top = min(j.rect.top, top)
+                    bottom = max(j.rect.bottom, bottom)
+                s = pygame.Surface((right-left, bottom-top), pygame.SRCALPHA, 32).convert_alpha()
+                for j in i:
+                    j.render(s)
+                    self.surface.blit(s, (j.rect.left + col*self.column_width, y))
+                    y += bottom-top + spacing                
+            else:
+                s = pygame.Surface(i.size, pygame.SRCALPHA, 32).convert_alpha()
+                i.render(s)
+                self.surface.blit(s, (i.rect.left + col*self.column_width, y))
+                y += i.height + spacing
             self.items_bottom = y
             self.items_height = min(y, self.size[1])
             row += 1
