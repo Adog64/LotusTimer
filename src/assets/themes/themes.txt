@@ -1,4 +1,4 @@
-theme=cubehead
+theme=default
 default
 cyberpunk
 cubehead

@@ -1,8 +1,0 @@
-Client ID 2d0aa7b1e8e34e6db2bbcc9e35fd4db5
-Client Secret 264330e29b1143f28800cc39b0ab8007
-
-https://accounts.spotify.com/authorize?client_id=2d0aa7b1e8e34e6db2bbcc9e35fd4db5&response_type=code&redirect_uri=https%3A%2F%2Fgoogle.com%2F
-
-2d0aa7b1e8e34e6db2bbcc9e35fd4db5:264330e29b1143f28800cc39b0ab8007
-
-curl -H "MmQwYWE3YjFlOGUzNGU2ZGIyYmJjYzllMzVmZDRkYjU6MjY0MzMwZTI5YjExNDNmMjg4MDBjYzM5YjBhYjgwMDc=" -d grant_type=authorization_code -d code=AQArPyv_n2OhOIgzo8cXefDJ57mYNg5nxwcHQhWB_IOwn5tMnnDvqlnVQ2f0jmhlQgWvbIRmbcZ8KnD6YcZ21Mn-FOyG78U3vkh6daz3BNHnzrq8mic7fKGwTDWGWBGRop8BSvpcVcLQDAm2faYgaj1eCCSvBjM -d redirect_uri=https%3A%2F%2Fgoogle.com%2F https://accounts.spotify.com/api/token

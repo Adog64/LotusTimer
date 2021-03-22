@@ -1,10 +1,23 @@
 #application data
 TITLE = 'Lotus'
-DEFAULT_WINDOW_WIDTH = 3200
-DEFAULT_WINDOW_HEIGHT = 1800
+DEFAULT_WINDOW_WIDTH = 1600
+DEFAULT_WINDOW_HEIGHT = 900
 window_width = DEFAULT_WINDOW_WIDTH
 window_height = DEFAULT_WINDOW_HEIGHT
 DEFAULT_WINDOW_SIZE = (DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)
+
+#screen components
+control_panel_center = (int(window_width*.05875), int(window_height/2))
+control_panel_size = (int(0.1175*window_width), window_height+14)
+scramble_center = (int((window_width + control_panel_size[0])/2), int(0.22222*window_height))
+scramble_size = (window_width/2, window_height/3)
+time_center = (scramble_center[0], int(0.28888*window_height))
+time_size = (int(.375*window_width), int(window_height/10))
+logo_center = (control_panel_center[0], int(0.07111*window_height))
+logo_size = (int(.08*window_width), int(.14222*window_height))
+logo_text_center = (logo_center[0], logo_size[1])
+logo_text_size = (int(0.2*window_width), int(0.07*window_height))
+
 
 #time constants
 H_MS = 1000*60*60

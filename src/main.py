@@ -19,7 +19,7 @@ class App:
         pg.font.init()
         self.APP_DIR = path.dirname(__file__)
         self.assets = self.APP_DIR + '/assets/'
-        self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE, pg.FULLSCREEN)
+        self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE)
         self.logo = pg.image.load(f"{self.assets}{logo}")
         pg.display.set_caption(TITLE)
         pg.display.set_icon(pg.image.load(f"{self.assets}lotus_round.png"))
@@ -64,11 +64,11 @@ class App:
 
     def screens(self):
         self.timer_screen = {
-        'Panel': Box((94, window_height/2), (188, window_height+14), visible=True, fill_color=box_fill_color),
-        'Scramble': Label(((window_width+188)/2, 200), (window_width/2, window_height/3),self.text_font, text_color, text=ScrambleGenerator.generate_scramble("3x3"), enabled=True),
-        'Time': TextBox(self.subtitle_font, text_color, center=((window_width+188)/2, 260), size=(600,90), enterable=True, bordered=True, is_valid_entry=self.valid_time),
-        'Logo': Image((94, 64), (128, 128), self.logo),
-        'LogoText': TextBox(self.title_font, (122, 28, 255), (94, 128), (128, 48), text='Lotus'),
+        'ControlPanel': Box(control_panel_center, control_panel_size, visible=True, fill_color=box_fill_color),
+        'Scramble': Label(scramble_center, scramble_size,self.text_font, text_color, text=ScrambleGenerator.generate_scramble("3x3"), enabled=True),
+        'Time': TextBox(self.subtitle_font, text_color, center=time_center, size=time_size, enterable=True, bordered=True, is_valid_entry=self.valid_time),
+        'Logo': Image(logo_center, logo_size, self.logo),
+        'LogoText': Label((500,500), logo_text_size, self.title_font, (122, 28, 255), text='Lotus'),
         'Quit': Button((94, window_height-40), (100, 75), enabled=True, text='Quit', when_pressed=self.end, text_font=self.text_font, text_color=text_color)
         }
         if self.timec > 0:
@@ -178,14 +178,14 @@ class App:
             avg = self.format_time(stat.mean(solved))
             sdev = self.format_time(stat.stdev(solved))
             best = self.format_time(min(solved))
-        if len(times) >= 5:
-            ao5 = stat.mean(sorted(ao5)[1:-1])
-            ao5 = self.format_time(ao5)
-        else:
-            ao5 = ''
-        if len(times) >= 12:
-            ao12 = stat.mean(sorted(ao12)[1:-1])
-            ao12 = self.format_time(ao12)
+        # if len(times) >= 5:
+        #     ao5 = stat.mean(sorted(ao5)[1:-1])
+        #     ao5 = self.format_time(ao5)
+        # else:
+        #     ao5 = ''
+        # if len(times) >= 12:
+        #     ao12 = stat.mean(sorted(ao12)[1:-1])
+        #     ao12 = self.format_time(ao12)
         else:
             ao12 = ''
         labels = [
