@@ -1,6 +1,11 @@
 import pygame
 from src.settings import *
 from collections.abc import Iterable
+import numpy as np
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.backends.backend_agg as agg
+
 
 class Enterable:
     def __init__(self):
@@ -352,3 +357,17 @@ class ScrollBox(Panel):
     def scroll_down(self):
         if self.selected and self.scrolled < 0:
             self.scrolled += self.scroll_speed
+
+class LineGraph(AppComponent):
+    def __init__(self, center, size, data, domain):
+        self.data = np.array(data)
+        self.domain = np.array(range(domain[0], domain[1]+1))
+        self.updated = False
+
+    def update(self, data, domain):
+        self.data = np.arange(data)
+        self.domain = np.array(range(domain[0], domain[1]+1))
+        self.updated = True
+    
+    def render(self, window):
+        if not self.updated:

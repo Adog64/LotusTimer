@@ -1,76 +1,61 @@
-import pygame, sys
-from pygame.locals import *
-import numpy
 import matplotlib
-
 matplotlib.use("Agg")
-
-import matplotlib.pyplot as plt
 import matplotlib.backends.backend_agg as agg
+import pylab
+import pygame
+from pygame.locals import *
+import numpy as np
+from scipy.interpolate import make_interp_spline, BSpline
 
-fig = plt.figure(figsize=[3, 3])
-ax = fig.add_subplot(111)
-canvas = agg.FigureCanvasAgg(fig)
+def main():
+   fig = pylab.figure(figsize=[4, 4], # Inches
+                     dpi=100,        # 100 dots per inch, so the resulting buffer is 400x400 pixels
+                     )
+   fig.patch.set_facecolor((51/255, 51/255, 51/255))
 
-def plot(data):
-   ax.plot(data)
+   ax = fig.gca()
+
+
+   ax.set_color((122/255, 28/255, 1))
+
+   x = np.array(range(1,11))
+   y = np.array([21.85, 23.27, 19.82, 28.13, 23.92, 21.22, 29.35, 31.44, 19.32, 24.47])
+
+   #define x as 200 equally spaced values between the min and max of original x 
+   xnew = np.linspace(x.min(), x.max(), 200) 
+
+   #define spline with degree k=7
+   spl = make_interp_spline(x, y, k=3)
+   y_smooth = spl(xnew)
+
+   #create smooth line chart 
+   ax.plot(xnew, y_smooth, linewidth=3, color=(122/255, 28/255, 1))  
+   ax.plot(x, y,'wo')
+
+
+   canvas = agg.FigureCanvasAgg(fig)
    canvas.draw()
    renderer = canvas.get_renderer()
-
    raw_data = renderer.tostring_rgb()
+
+   print('rendered')
+
+   pygame.display.init()
+
+   window = pygame.display.set_mode((400, 400), DOUBLEBUF)
+   screen = pygame.display.get_surface()
+
    size = canvas.get_width_height()
 
-   return pygame.image.fromstring(raw_data, size, "RGB")
+   surf = pygame.image.fromstring(raw_data, size, "RGB")
+   screen.blit(surf, (0,0))
+   pygame.display.flip()
 
-pygame.init()
-clock = pygame.time.Clock()
-screen = pygame.display.set_mode((400, 400))
+   crashed = False
+   while not crashed:
+      for event in pygame.event.get():
+         if event.type == pygame.QUIT:
+            crashed = True
 
-pygame.display.set_caption('Animating Objects')
-img = pygame.image.load('head.jpg')
-
-steps = numpy.linspace(20, 360, 40).astype(int)
-right = numpy.zeros((2, len(steps)))
-down = numpy.zeros((2, len(steps)))
-left = numpy.zeros((2, len(steps)))
-up = numpy.zeros((2, len(steps)))
-
-right[0] = steps
-right[1] = 20
-
-down[0] = 360
-down[1] = steps
-
-left[0] = steps[::-1]
-left[1] = 360
-
-up[0] = 20
-up[1] = steps[::-1]
-
-pos = numpy.concatenate((right.T, down.T, left.T, up.T))
-i = 0
-history = numpy.array([])
-surf = plot(history)
-
-while True: 
-   # Erase screen
-   screen.fill((255, 255, 255))
-
-   if i >= len(pos):
-      i = 0
-      surf = plot(history)
-
-
-   screen.blit(img, pos[i])
-   history = numpy.append(history, pos[i])
-   screen.blit(surf, (100, 100))
-
-   i += 1
-
-   for event in pygame.event.get():
-      if event.type == QUIT:
-         pygame.quit()
-         sys.exit()
-
-   pygame.display.update()
-   clock.tick(30)
+if __name__ == '__main__':
+   main()
