@@ -18,7 +18,7 @@ class App:
         pg.font.init()
         self.APP_DIR = path.dirname(__file__)
         self.assets = self.APP_DIR + '/assets/'
-        self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE)
+        self.window = pg.display.set_mode(DEFAULT_WINDOW_SIZE, pg.RESIZABLE)
         self.logo = pg.image.load(f"{self.assets}{logo}")
         pg.display.set_caption(TITLE)
         pg.display.set_icon(pg.image.load(f"{self.assets}lotus_round.png"))
@@ -26,16 +26,18 @@ class App:
         self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
         self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
         self.theme_init(self.theme + 'options.json')
-        self.title_font = pg.font.Font(self.assets + title_font, SCRAMBLE_SIZE)
+        self.title_font = pg.font.Font(self.assets + title_font, TITLE_FONT_SIZE)
         self.subtitle_font = pg.font.Font(self.theme + text_font, 30)
         self.text_font = pg.font.Font(self.theme + text_font, 25)
         self.init_sessions()
         self.running = True
         self.timec = len(self.session.get_times())
+        self.current_scramble = self.session.generate_scramble()
         self.screens()
         
 
     def process_inputs(self):
+        global window_width, window_height
         for event in pg.event.get():
                 if event.type == QUIT:
                     pg.quit()
@@ -44,6 +46,9 @@ class App:
                     self.screen.clicks(pygame.mouse.get_pos())
                 if event.type == VIDEORESIZE:
                     self.window = pg.display.set_mode((event.w, event.h), pg.RESIZABLE)
+                    window_width, window_height = self.window.get_size()
+                    self.refresh_screen_components()
+                    self.screens()
                 if event.type == pg.KEYDOWN:
                     if 'Time' in self.screen.get_selected():
                         if event.unicode in TIME_CHARS:
@@ -51,7 +56,7 @@ class App:
                         elif event.key == K_RETURN and self.screen.components['Time'].valid():
                             self.publish_time(self.screen.components['Time'].text, self.screen.components['Scramble'].text)
                             self.screen.components['Time'].clear()
-                            self.screen.components['Scramble'].text = ScrambleGenerator.generate_scramble()
+                            self.screen.components['Scramble'].text = self.session.generate_scramble()
                         elif event.key == K_BACKSPACE:
                             self.screen.components['Time'].backspace()
                 if event.type == pg.MOUSEWHEEL:
@@ -64,11 +69,10 @@ class App:
     def screens(self):
         self.timer_screen = {
         'ControlPanel': Box(control_panel_center, control_panel_size, visible=True, fill_color=box_fill_color),
-        'Scramble': Label(scramble_center, scramble_size,self.text_font, text_color, text=ScrambleGenerator.generate_scramble("3x3"), enabled=True),
+        'Scramble': Label(scramble_center, scramble_size,self.text_font, text_color, text=self.current_scramble, enabled=True),
         'Time': TextBox(self.subtitle_font, text_color, center=time_center, size=time_size, enterable=True, bordered=True, is_valid_entry=self.valid_time),
         'Logo': Image(logo_center, logo_size, self.logo),
-        'LogoText': Label((500,500), logo_text_size, self.title_font, (122, 28, 255), text='Lotus'),
-        'Quit': Button((94, window_height-40), (100, 75), enabled=True, text='Quit', when_pressed=self.end, text_font=self.text_font, text_color=text_color)
+        'LogoText': Label(logo_text_center, logo_text_size, self.title_font, (122, 28, 255), text='Lotus', scaling=True),
         }
         if self.timec > 0:
             self.timer_screen['TimeBox'] = Box((188 + 305, window_height-220), (450, 400), visible=True)
@@ -79,7 +83,7 @@ class App:
 
     def draw(self):
         self.window.fill(background_color)
-
+    
         #render components
         self.screen.render(self.window)
         pg.display.update()
@@ -91,6 +95,20 @@ class App:
         text_color = tuple(opts['TEXT_COLOR'])
         border_color = text_color
         box_fill_color = tuple(opts['BOX_FILL_COLOR'])
+
+    def refresh_screen_components(self):
+        global control_panel_center, control_panel_size, scramble_center, scramble_size,\
+         time_center, time_size, logo_center, logo_size, logo_text_center, logo_text_size
+        control_panel_center = (int(window_width*.05875), int(window_height/2))
+        control_panel_size = (int(0.1175*window_width), window_height+14)
+        scramble_center = (int((window_width + control_panel_size[0])/2), int(0.22222*window_height))
+        scramble_size = (window_width/2, window_height/3)
+        time_center = (scramble_center[0], int(0.28888*window_height))
+        time_size = (int(.375*window_width), int(window_height/10))
+        logo_center = (control_panel_center[0], int(0.07111*window_height))
+        logo_size = (int(.08*window_width), int(.14222*window_height))
+        logo_text_center = (logo_center[0], logo_size[1])
+        logo_text_size = (logo_size[0], int(0.06*window_height))
 
     def init_sessions(self):
         sessions = []

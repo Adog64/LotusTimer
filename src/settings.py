@@ -1,7 +1,7 @@
 #application data
 TITLE = 'Lotus'
-DEFAULT_WINDOW_WIDTH = 1600
-DEFAULT_WINDOW_HEIGHT = 900
+DEFAULT_WINDOW_WIDTH = 800
+DEFAULT_WINDOW_HEIGHT = 450
 window_width = DEFAULT_WINDOW_WIDTH
 window_height = DEFAULT_WINDOW_HEIGHT
 DEFAULT_WINDOW_SIZE = (DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)
@@ -16,19 +16,17 @@ time_size = (int(.375*window_width), int(window_height/10))
 logo_center = (control_panel_center[0], int(0.07111*window_height))
 logo_size = (int(.08*window_width), int(.14222*window_height))
 logo_text_center = (logo_center[0], logo_size[1])
-logo_text_size = (int(0.2*window_width), int(0.07*window_height))
-
+logo_text_size = (logo_size[0], int(0.06*window_height))
 
 #time constants
 H_MS = 1000*60*60
 M_MS = 1000*60
 S_MS = 1000
 
-
 #style settings
 title_font = 'logo.ttf'
 text_font = 'arial.ttf'
-SCRAMBLE_SIZE = 100
+TITLE_FONT_SIZE = 50
 text_color = (183, 183, 183)
 background_color = (51, 51, 51)
 border_color = text_color
@@ -96,7 +94,7 @@ SCRAMBLE_LENGTHS = {"2x2":(9,10),
 
 #text validation
 TIME_CHARS = ('0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.', ':', '+', 'd', 'n', 'f')
-CUBE_PREFIXES = {'222':'2x2', '444':'4x4', '555':'5x5', '666':'6x6', '777':'7x7', 'sqr':'Sq1', 'skb':'Skewb', 'mgm':'Mega', 'pyr':'Pyra'}
+CUBE_PREFIXES = {'222':'2x2', '444':'4x4', '555':'5x5', '666':'6x6', '777':'7x7', 'sqr':'sqn', 'skb':'skb', 'mgm':'mega', 'pyr':'pyra'}
 VALID_TIME_FORMATS = ('00:00:00.00', '0:00:00.00', '00:00.00', '0:00.00', '00.00', '0.00', '.00',
                  '0:00', '00:00', '0:00:00', '00:00:00', '0.0', '00.0', '0:00.0', '00:00.0', '0:00:00.0', '00:00:00.0',
                  '0.', '00.', '0:00.', '00:00.', '0:00:00.', '00:00:00.',

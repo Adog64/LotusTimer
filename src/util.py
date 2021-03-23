@@ -1,57 +1,69 @@
 import os
 import pygame
 import random
-from src.settings import *
+#from src.settings import *
 import json
 import configparser
 import spotipy
+from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, \
+scrambler555, scrambler666, scrambler777, skewbScrambler, \
+squareOneScrambler, megaminxScrambler, pyraminxScrambler, clockScrambler
 from spotipy.oauth2 import SpotifyOAuth
 import statistics as stat
 
 class ScrambleGenerator:
+    puzzle_types = {'2x2':scrambler222, '3x3':scrambler333,
+            '4x4':scrambler444, '5x5':scrambler555, '6x6':scrambler666,
+            '7x7':scrambler777, 'sqn':squareOneScrambler, 'skb':skewbScrambler,
+            'mega':megaminxScrambler, 'pyra':pyraminxScrambler, 'clk':clockScrambler}
+
     def __init__(self, puzzle='3x3'):
-        self.moves = self.get_moves(puzzle)
-        self.length = SCRAMBLE_LENGTHS[puzzle]
-        self.scramble = ""
+        self.puzzle = puzzle
+        # self.moves = self.get_moves(puzzle)
+        # self.length = SCRAMBLE_LENGTHS[puzzle]
+        # self.scramble = ""
 
     @classmethod
     def generate_scramble(cls, puzzle="3x3"):
-        gen = ScrambleGenerator(puzzle)
-        sets = []
-        for x in range(random.randint(gen.length[0], gen.length[1])):
-            if puzzle in REG_SETS:
-                new_set = random.sample(REG_SETS[puzzle], 1)[0]
-                if len(sets) == 1:
-                    while new_set == sets[0]:
-                        new_set = random.sample(REG_SETS[puzzle], 1)[0]
-                elif len(sets) > 1:
-                    while new_set == sets[x-1] or new_set in gen.opposite_set(new_set):
-                        new_set = random.sample(REG_SETS[puzzle], 1)[0]
-                sets.append(new_set)
-                gen.scramble += random.sample(new_set, 1)[0] + " "
-        return gen.scramble
-
+        return cls.puzzle_types[puzzle].get_WCA_scramble().replace('/', ' / ')
+        # gen = ScrambleGenerator(puzzle)
+        # sets = []
+        # for x in range(random.randint(gen.length[0], gen.length[1])):
+        #     if puzzle in REG_SETS:
+        #         new_set = random.sample(REG_SETS[puzzle], 1)[0]
+        #         if len(sets) == 1:
+        #             while new_set == sets[0]:
+        #                 new_set = random.sample(REG_SETS[puzzle], 1)[0]
+        #         elif len(sets) > 1:
+        #             while new_set == sets[x-1] or new_set in gen.opposite_set(new_set):
+        #                 new_set = random.sample(REG_SETS[puzzle], 1)[0]
+        #         sets.append(new_set)
+        #         gen.scramble += random.sample(new_set, 1)[0] + " "
+        # return gen.scramble
+        
     def get_moves(self, puzzle):
-        moves = []
-        if puzzle in REG_SETS:
-            for set in REG_SETS[puzzle]:
-                for move in set:
-                    moves.append(move)
-        elif puzzle == "Sq1":
-            for move in SQ1_MOVES:
-                moves.append(move)
-        return moves
+        # moves = []
+        # if puzzle in REG_SETS:
+        #     for set in REG_SETS[puzzle]:
+        #         for move in set:
+        #             moves.append(move)
+        # elif puzzle == "Sq1":
+        #     for move in SQ1_MOVES:
+        #         moves.append(move)
+        # return moves
+        pass
 
     def opposite_set(self, set):
-        type = ALL_NxN_MOVES.index(set) % 3
-        opposites = []
-        for i in ALL_NxN_MOVES:
-            if i != set and ALL_NxN_MOVES.index(i)%3 == type:
-                opposites.append(i)
-        return opposites
+        # type = ALL_NxN_MOVES.index(set) % 3
+        # opposites = []
+        # for i in ALL_NxN_MOVES:
+        #     if i != set and ALL_NxN_MOVES.index(i)%3 == type:
+        #         opposites.append(i)
+        # return opposites
+        pass
 
 class Session:
-    def __init__(self, path, session=1):
+    def __init__(self, path, session=1, type='3x3'):
         self.session_number = session
         self.path = path
         self.best = None
@@ -59,8 +71,11 @@ class Session:
         self.sdev = None
         self.data = None
         self.solve_rate = None
-
+        self.puzzle = type
         self.retrieve_data()
+
+    def generate_scramble(self):
+        return ScrambleGenerator.generate_scramble(self.puzzle)
 
     def retrieve_data(self):
         self.data = json.load(open(self.path))

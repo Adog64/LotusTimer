@@ -105,7 +105,7 @@ class TextBox(AppComponent, Enterable):
 class Image(AppComponent):
     def __init__(self, center, size, image):
         super().__init__(center=center, size=size, enabled=True)
-        self.image = pygame.transform.scale(image, self.size)
+        self.image = pygame.transform.smoothscale(image, self.size)
 
     def render(self, window):
         window.blit(self.image, self.rect)
@@ -245,7 +245,7 @@ class Screen(AppComponent):
 
 
 class Label(AppComponent):
-    def __init__(self, center, size, font, text_color, text, enabled=True, just='c'):
+    def __init__(self, center, size, font, text_color, text, enabled=True, just='c', scaling=False):
         super().__init__(center=center, size=size, enabled=enabled)
         self.font = font
         self.text = text
@@ -253,43 +253,47 @@ class Label(AppComponent):
         self.fontHeight = self.font.size("Tg")[1]
         self.height = self.fontHeight
         self.just = just
+        self.scaling = scaling
 
     def render(self, window):
-        lbl = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
-        y = 0
-        lineSpacing = -2
-        text = self.text
-        bottom = 0
+        if not self.scaling:
+            lbl = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
+            y = 0
+            lineSpacing = -2
+            text = self.text
+            bottom = 0
 
-        while text:
-            i = 1
+            while text:
+                i = 1
 
-            # determine if the row of text will be outside our area
-            if y + self.fontHeight > self.size[1]:
-                break
+                # determine if the row of text will be outside our area
+                if y + self.fontHeight > self.size[1]:
+                    break
 
-            # determine maximum width of line
-            while self.font.size(text[:i])[0] < self.rect.width and i < len(text):
-                i += 1
+                # determine maximum width of line
+                while self.font.size(text[:i])[0] < self.rect.width and i < len(text):
+                    i += 1
 
-            # if we've wrapped the text, then adjust the wrap to the last word      
-            if i < len(text): 
-                i = text.rfind(" ", 0, i) + 1
+                # if we've wrapped the text, then adjust the wrap to the last word      
+                if i < len(text): 
+                    i = text.rfind(" ", 0, i) + 1
 
-            surface = self.font.render(text[:i], True, self.text_color)
-            sr = surface.get_rect()
-            bottom += sr.bottom
-            if self.just == 'c':
-                lbl.blit(surface, (lbl.get_width()/2 - sr.width/2, y))
-            elif self.just == 'l':
-                lbl.blit(surface, self.rect)
-            y += self.fontHeight + lineSpacing
+                surface = self.font.render(text[:i], True, self.text_color)
+                sr = surface.get_rect()
+                bottom += sr.bottom
+                if self.just == 'c':
+                    lbl.blit(surface, (lbl.get_width()/2 - sr.width/2, y))
+                elif self.just == 'l':
+                    lbl.blit(surface, self.rect)
+                y += self.fontHeight + lineSpacing
 
-            # remove the text we just blitted
-            text = text[i:]
-        window.blit(lbl, (self.rect.left, self.rect.top + (self.rect.height/2 - bottom)))
-        return text
-
+                # remove the text we just blitted
+                text = text[i:]
+            window.blit(lbl, (self.rect.left, self.rect.top + (self.rect.height/2 - bottom)))
+            return text
+        else:
+            lbl = pygame.transform.smoothscale(self.font.render(self.text, True, self.text_color), self.size)
+            window.blit(lbl, self.rect)
 
 class Panel(AppComponent):
     def __init__(self, center, size, enabled=True, items=[], columns=1, column_width=100):
