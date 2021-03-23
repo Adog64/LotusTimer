@@ -6,6 +6,7 @@ import json
 import configparser
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
+import statistics as stat
 
 class ScrambleGenerator:
     def __init__(self, puzzle='3x3'):
@@ -49,25 +50,60 @@ class ScrambleGenerator:
                 opposites.append(i)
         return opposites
 
-class SessionManager:
+class Session:
     def __init__(self, path, session=1):
         self.session_number = session
         self.path = path
+        self.best = None
+        self.avg = None
+        self.sdev = None
+        self.data = None
+        self.solve_rate = None
+
         self.retrieve_data()
 
     def retrieve_data(self):
         self.data = json.load(open(self.path))
+        times = self.get_times()
+        solved = []
+        for t in times:
+            if t[0] >=0:
+                solved.append(t[1]+t[0])
+        if len(times) > 0:
+            self.solve_rate = [solved, len(times)]
+            self.avg = stat.mean(solved)
+            self.sdev = stat.stdev(solved)
+            self.best = min(solved)
 
-    
-    def parse_session_setting(self):
-        data = self.session_settings[str(self.session)]
+    @classmethod
+    def get_WCA_AoN(cls, n=5, penalties_times=[]):
+        penalties = [item[0] for item in penalties_times]
+        times = [item[1] for item in penalties_times]
+
+        if len(times) != n:
+            return
+        elif -1 in penalties and penalties.index(-1) != penalties[-1::-1]:
+            return -1
+        else:
+            if -1 in penalties:
+                dnf = penalties.index(-1)
+                for i in range(len(times)):
+                    times[i] = (penalties[i] + times[i], -1)[i == dnf]
+            else:
+                penalties = sorted(penalties)[1:-1]
+        return stat.mean(times)
+
+
+    @classmethod
+    def parse_session_setting(cls):
+        data = cls.session_settings[str(cls.session)]
 
         #decode puzzle from json
         type = '3x3'
         if data['opt'] != {}:
             cs_type = data['opt']['scrType'][:2]
             type = CUBE_PREFIXES[cs_type]
-        self.puzzle = type
+        return type
 
     def add_time(self, time, scramble, timestamp):
         self.data[f'session{self.session_number}'].append([time, scramble, timestamp])

@@ -5,7 +5,8 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
-
+from scipy.interpolate import make_interp_spline
+import pylab
 
 class Enterable:
     def __init__(self):
@@ -359,10 +360,11 @@ class ScrollBox(Panel):
             self.scrolled += self.scroll_speed
 
 class LineGraph(AppComponent):
-    def __init__(self, center, size, data, domain):
+    def __init__(self, center, size, data, domain, linecolor=(0,0,0)):
         self.data = np.array(data)
         self.domain = np.array(range(domain[0], domain[1]+1))
         self.updated = False
+        self.line_color = pygame.Color.normalize(linecolor)
 
     def update(self, data, domain):
         self.data = np.arange(data)
@@ -370,4 +372,35 @@ class LineGraph(AppComponent):
         self.updated = True
     
     def render(self, window):
+        #Don't bother recreating the graph if the data hasn't changed
         if not self.updated:
+            #Configure the graph settings
+            fig = pylab.figure(figsize=[5, 2], dpi=100)
+            ax = fig.gca()
+            for i in ax.spines.values():
+                i.set_visible(False)
+            ax.xaxis.set_visible(False)
+            ax.tick_params(axis='y', colors=self.line_color) 
+            #Convert datapoints into an interpolated smooth curve
+            xnew = np.linspace(self.domain.min(), self.domain.max(), 5*len(self.domain)) 
+            spl = make_interp_spline(self.domain, self.data, k=3)
+            y_smooth = spl(xnew)
+            #Plot the data
+            ax.plot(xnew, y_smooth, linewidth=2, color=self.line_color, aa=True)
+            #Convert the plot into a image string and get its size
+            canvas = agg.FigureCanvasAgg(fig)
+            canvas.draw()
+            renderer = canvas.get_renderer()
+            raw_data = renderer.tostring_rgb()
+            size = canvas.get_width_height()            
+            #Turn graph string into a pygame image object and convert all white pixels to transparent
+            surface = pygame.image.fromstring(raw_data, size, "RGB").convert_alpha()
+            for x in range(surface.get_width()):
+                for y in range(surface.get_height()):
+                    if surface.get_at((x, y)) == (255, 255, 255, 255):
+                        surface.set_at((x, y), (0, 0, 0, 0))
+            #Save the image object
+            self.surface = surface
+            self.updated = True        
+        #Draw the surface
+        window.blit(self.surface, self.rect)

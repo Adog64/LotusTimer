@@ -10,7 +10,6 @@ from src.components import *
 from src.util import *
 import json
 import time
-import statistics as stat
 
 class App:
     def __init__(self):
@@ -96,7 +95,7 @@ class App:
     def init_sessions(self):
         sessions = []
         for i in range(10):
-            sessions.append(SessionManager( self.APP_DIR + '/assets/session_data.json', i+1))
+            sessions.append(Session( self.APP_DIR + '/assets/session_data.json', i+1))
         self.sessions = sessions
         self.session = sessions[0]
 
