@@ -1,4 +1,6 @@
+from decimal import ROUND_CEILING
 import os
+from time import time
 import pygame
 import random
 #from src.settings import *
@@ -10,6 +12,7 @@ scrambler555, scrambler666, scrambler777, skewbScrambler, \
 squareOneScrambler, megaminxScrambler, pyraminxScrambler, clockScrambler
 from spotipy.oauth2 import SpotifyOAuth
 import statistics as stat
+from math import ceil
 
 class ScrambleGenerator:
     puzzle_types = {'2x2':scrambler222, '3x3':scrambler333,
@@ -71,6 +74,10 @@ class Session:
         self.sdev = None
         self.data = None
         self.solve_rate = None
+        self.ao5 = None
+        self.ao12 = None
+        self.ao100 = None
+        self.ao1000 = None
         self.puzzle = type
         self.retrieve_data()
 
@@ -87,27 +94,42 @@ class Session:
         if len(times) > 0:
             self.solve_rate = [solved, len(times)]
             self.avg = stat.mean(solved)
-            self.sdev = stat.stdev(solved)
             self.best = min(solved)
+        if len(times) > 1:
+            self.sdev = stat.stdev(solved)
+        if len(times) >= 5:
+            self.ao5 = self.get_WCA_AoN(n=5, penalties_times=times[:5])
+        if len(times) >= 12:
+            self.ao12 = self.get_WCA_AoN(n=12, penalties_times=times[:12])
+        if len(times) >= 100:
+            self.ao100 = self.get_WCA_AoN(n=100, penalties_times=times[:100])
+        if len(times) >= 1000:
+            self.ao1000 = self.get_WCA_AoN(n=1000, penalties_times=times[:1000])
 
     @classmethod
     def get_WCA_AoN(cls, n=5, penalties_times=[]):
         penalties = [item[0] for item in penalties_times]
-        times = [item[1] for item in penalties_times]
+        times = [item[0] + item[1] for item in penalties_times]
+        dnfs = penalties.count(-1)
+        aon = 0
+        buffer = ceil(0.05*len(times))
 
+        #not correct number of times
         if len(times) != n:
-            return
-        elif -1 in penalties and penalties.index(-1) != penalties[-1::-1]:
+            return ''
+        
+        #average is dnf if dnfs account for more than 5% of times
+        elif dnfs > buffer:
             return -1
+        
         else:
-            if -1 in penalties:
-                dnf = penalties.index(-1)
-                for i in range(len(times)):
-                    times[i] = (penalties[i] + times[i], -1)[i == dnf]
-            else:
-                penalties = sorted(penalties)[1:-1]
-        return stat.mean(times)
-
+            removes = [item for item in range(len(penalties)) if penalties[item] == -1]
+            for r in removes:
+                del times[r]
+            times = sorted(times, reverse=True)[buffer-dnfs:-buffer]
+            print(times)
+            print(len(times)/len(penalties))        
+            return stat.mean(times)
 
     @classmethod
     def parse_session_setting(cls):
@@ -125,6 +147,7 @@ class Session:
         os.remove(self.path)
         with open(self.path, 'w') as f:
             json.dump(self.data, f)
+        self.retrieve_data()
 
     def remove_time(self, index):
         try:
@@ -134,7 +157,8 @@ class Session:
                 json.dump(self.data, f)
         except IndexError:
             return
-        
+        self.retrieve_data()
+
     def get_times(self):
         s = self.data[f'session{self.session_number}']
         t = []

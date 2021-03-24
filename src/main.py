@@ -75,10 +75,11 @@ class App:
         'LogoText': Label(logo_text_center, logo_text_size, self.title_font, (122, 28, 255), text='Lotus', scaling=True),
         }
         if self.timec > 0:
-            self.timer_screen['TimeBox'] = Box((188 + 305, window_height-220), (450, 400), visible=True)
-            self.timer_screen['QuickStatsBox'] = Box((window_width - 425, window_height - 220), (750, 400), visible=True)
-            self.timer_screen['Times'] = ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=25)
-            self.timer_screen['QuickStats'] = Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
+            self.timer_screen = {**self.timer_screen, 
+                **{'TimeBox' : Box((188 + 305, window_height-220), (450, 400), visible=True),
+                'QuickStatsBox' : Box((window_width - 425, window_height - 220), (750, 400), visible=True),
+                'Times' : ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=25),
+                'QuickStats' : Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)}}
         self.screen = Screen(((window_width+188)/2, window_height/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
 
     def draw(self):
@@ -154,7 +155,7 @@ class App:
         if self.timec == 0:
             self.timer_screen['TimeBox'] = Box((188 + 305, window_height-220), (450, 400), visible=True)
             self.timer_screen['QuickStatsBox'] = Box((window_width - 425, window_height - 220), (750, 400), visible=True)
-            self.timer_screen['Times'] = ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_labels(), scroll_speed=25)
+            self.timer_screen['Times'] = ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=25)
             self.timer_screen['QuickStats'] = Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
         self.timec += 1
         if score > 0  or penalty == -1:
@@ -164,6 +165,8 @@ class App:
             self.screen.components['QuickStats'].items = self.stat_labels()
 
     def format_time(self, time_ms):
+        if time_ms == None or time_ms == '':
+            return ''
         hours = int(time_ms / H_MS)
         time_ms -= hours * H_MS
         minutes = int(time_ms / M_MS)
@@ -178,33 +181,12 @@ class App:
         return ts
 
     def stat_labels(self):
-        times = self.session.get_times()
-        times = times[-1::-1]
-        solved = []
-        best = ''
-        solve_rate = ''
-        sdev = ''
-        avg = ''
-        ao5 = ''
-        ao12 = ''
-        for t in times:
-            if t[0] >=0:
-                solved.append(t[1]+t[0])
-        if len(times) > 0:
-            solve_rate = f'{solved}/{len(times)}'
-            avg = self.format_time(stat.mean(solved))
-            sdev = self.format_time(stat.stdev(solved))
-            best = self.format_time(min(solved))
-        # if len(times) >= 5:
-        #     ao5 = stat.mean(sorted(ao5)[1:-1])
-        #     ao5 = self.format_time(ao5)
-        # else:
-        #     ao5 = ''
-        # if len(times) >= 12:
-        #     ao12 = stat.mean(sorted(ao12)[1:-1])
-        #     ao12 = self.format_time(ao12)
-        else:
-            ao12 = ''
+        best = self.format_time(self.session.best)
+        ao5 = self.format_time(self.session.ao5)
+        ao12 = self.format_time(self.session.ao12)
+        avg = self.format_time(self.session.avg)
+        sdev = self.format_time(self.session.sdev)
+        
         labels = [
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Best:   {best}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Ao5:   {ao5}', just='l'),
