@@ -155,7 +155,7 @@ class App:
         if self.timec == 0:
             self.timer_screen['TimeBox'] = Box((188 + 305, window_height-220), (450, 400), visible=True)
             self.timer_screen['QuickStatsBox'] = Box((window_width - 425, window_height - 220), (750, 400), visible=True)
-            self.timer_screen['Times'] = ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=25)
+            self.timer_screen['Times'] = ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=35)
             self.timer_screen['QuickStats'] = Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
         self.timec += 1
         if score > 0  or penalty == -1:
@@ -167,6 +167,8 @@ class App:
     def format_time(self, time_ms):
         if time_ms == None or time_ms == '':
             return ''
+        elif time_ms == -1:
+            return 'DNF'
         hours = int(time_ms / H_MS)
         time_ms -= hours * H_MS
         minutes = int(time_ms / M_MS)
