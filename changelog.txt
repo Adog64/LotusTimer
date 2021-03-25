@@ -3,9 +3,9 @@
 *Fixed bugs with finding averages
 
 =====NEW FEATURES=====
-*Added ALL THE PUZZLES (Although there still isnt a way to change puzzles D:)
+*Added ALL THE PUZZLES (Although there still isn't a way to change puzzles D:)
 *Added time trends graph
-*Resizeable window!
+*Resizeable window! - Looks the same no matter your monitor size!
 *PB Ao5 and Ao12
 
 

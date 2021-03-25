@@ -18,10 +18,14 @@ logo_size = (int(.08*window_width), int(.14222*window_height))
 logo_text_center = (logo_center[0], logo_size[1])
 logo_text_size = (logo_size[0], int(0.06*window_height))
 stats_center = (int(.74688*window_width), int(.75555*window_height))
+stats_lbls_center = (int(0.01188*window_width)+stats_center[0], stats_center[1])
 stats_size = (int(.46875*window_width), int(.44444*window_height))
+times_box_center = (int(0.30813*window_width), stats_center[1])
+times_box_size = (int(.28125*window_width), stats_size[1])
 times_center = (int(.32053*window_width), stats_center[1])
-times_size = (int(.28125*window_width), stats_size[1])
-graph_size = (int(stats_size[0]/2), int(stats_size[1]*.9))
+times_size = (times_box_size[0], stats_size[1])
+graph_center = (stats_center[0], stats_center[1]+int(stats_size[1]/4))
+graph_size = (int(stats_size[0]*0.9), int(stats_size[1]/2))
 
 #time constants
 H_MS = 1000*60*60

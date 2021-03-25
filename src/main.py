@@ -84,11 +84,11 @@ class App:
         }
         if self.timec > 0:
             self.timer_screen = {**self.timer_screen, 
-                **{'TimeBox': Box((188 + 305, window_height-220), (450, 400), visible=True),
+                **{'TimeBox': Box(times_box_center, times_box_size, visible=True),
                 'QuickStatsBox': Box(stats_center, stats_size, visible=True),
                 'Times': ScrollBox(times_center, times_size, True, items=self.get_time_elements(), scroll_speed=25),
                 'QuickStats': Panel(stats_center, stats_size, items=self.stat_labels(), columns=2, column_width=310),
-                'Timetrends': LineGraph(stats_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
+                'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
         self.screen = Screen(((window_width+188)/2, window_height/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
 
     def draw(self):
@@ -174,17 +174,19 @@ class App:
             score = score[:-3]
         score = self.time_ms(score)
         if self.timec == 0:
-            self.timer_screen['TimeBox'] = Box((188 + 305, window_height-220), (450, 400), visible=True)
-            self.timer_screen['QuickStatsBox'] = Box((window_width - 425, window_height - 220), (750, 400), visible=True)
-            self.timer_screen['Times'] = ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=35)
-            self.timer_screen['QuickStats'] = Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)
+            self.timer_screen = {**self.timer_screen, **{
+            ['TimeBox']: Box((188 + 305, window_height-220), (450, 400), visible=True),
+            'QuickStatsBox': Box((window_width - 425, window_height - 220), (750, 400), visible=True),
+            'Times': ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=35),
+            'QuickStats': Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310),
+            'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
         self.timec += 1
         if score > 0  or penalty == -1:
             timestamp = int(time.time())
             self.session.add_time([penalty, score], scramble, timestamp)
             self.screen.components['Times'].items = self.get_time_elements()
             self.screen.components['QuickStats'].items = self.stat_labels()
-            self.screen.components['Graph'].update()
+            self.screen.components['Timetrends'].update(self.session.get_scores())
 
     def format_time(self, time_ms):
         if time_ms == None or time_ms == '':

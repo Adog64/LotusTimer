@@ -52,7 +52,6 @@ class AppComponent:
         return True
 
     
-
 class TextBox(AppComponent, Enterable):
     def __init__(self, font, text_color=(0,0,0), center=(0,0), size=(0,0),
                  enterable=False, text='',enabled=True, bordered=False,
@@ -130,8 +129,7 @@ class Image(AppComponent):
 class Switch(AppComponent):
     pass
 
-#provides a padded border for other components
-#@param bordered - draws a solid line around the box drawn
+
 class Box(AppComponent):
     def __init__(self, center=(0,0), size=(0,0), enabled=True, bordered=False, visible=False, border_color=border_color, fill_color=box_fill_color):
         super().__init__(center=center, size=size, enabled=enabled)
@@ -172,10 +170,6 @@ class Box(AppComponent):
         self.color = (color[0], color[1], color[2])
 
 
-#pressable button capable of executing commands when pressed
-#@param image - image displayed on button
-#@param text - text displayed on button
-#@param mode - either 'i' or 't' for image and text modes respectively
 class Button(AppComponent):
     def __init__(self, center, size, enabled=False, image=None, text='', mode='t', toggle=True, when_pressed=print, when_unpressed=print, text_font=None, wp_arg=None, text_color=(0,0,0)):
         super().__init__(center=center, size=size, enabled=enabled)
@@ -211,6 +205,7 @@ class Button(AppComponent):
             self.text.render(window)
         elif self.mode == 'i':
             self.image.render(window)
+
 
 class Screen(AppComponent):
     def __init__(self, center=(0,0), size=(0,0), enabled=True, components={}):
@@ -322,6 +317,7 @@ class Label(AppComponent):
         else:
             window.blit(self.lbl, self.lblpos)
 
+
 class Panel(AppComponent):
     def __init__(self, center, size, enabled=True, items=[], columns=1, column_width=100):
         super().__init__(center=center, size=size, enabled=enabled)
@@ -376,7 +372,6 @@ class Panel(AppComponent):
         window.blit(self.surface, self.rect)
             
 
-
 class ScrollBox(Panel):
     def __init__(self, center, size, enabled, scroll_speed=5, items=[]):
         super().__init__(center, size, enabled=enabled, items=items)
@@ -390,31 +385,30 @@ class ScrollBox(Panel):
         if self.selected and self.scrolled < 0:
             self.scrolled += self.scroll_speed
 
+
 class LineGraph(AppComponent):
     def __init__(self, center, size, data, domain=None, linecolor=(0,0,0)):
         super().__init__(center, size, enabled=True)
-        self.data = np.array(data)
+        self.data = [item/1000 for item in data]
         if domain == None:
             domain = [0, len(data)]
         self.domain = np.array(range(domain[0], domain[1]))
         self.line_color = [item/255 for item in linecolor]
-        print('Data', self.data)
-        print('Domain', self.domain)
 
     def update(self, data, domain=None):
-        self.data = np.arange(data)
+        self.data = [item/1000 for item in data]
         if domain == None:
             domain = [0, len(data)]
         self.domain = np.array(range(domain[0], domain[1]))
         self.updated = False
      
-    
     def render(self, window):
         #Don't bother recreating the graph if the data hasn't changed
         if not self.updated:
             if len(self.data) > 0:
                 #Configure the graph settings
                 fig = pylab.figure(figsize=[self.size[0]/100, self.size[1]/100], dpi=100)
+                #fig.yticklabels.fontsize = 50
                 ax = fig.gca()
                 for i in ax.spines.values():
                     i.set_visible(False)
@@ -423,16 +417,15 @@ class LineGraph(AppComponent):
                 #Convert datapoints into an interpolated smooth curve
                 y = np.array(self.data)
                 x = np.array(range(len(y)))
-                xs = np.linspace(0, len(y) - 1, 1000)
+                xs = np.linspace(0, len(y) - 1, self.size[1])
 
                 poly_deg = len(y) - 1
                 coefs = np.polyfit(x, y, poly_deg)
                 y_poly = np.polyval(coefs, xs)
                 #Plot the data
-                ax.plot(xs, y_poly, linewidth=2, color=(122/255, 28/255, 1), aa=True) 
+                ax.plot(xs, y_poly, linewidth=2, color=(122/255, 28/255, 1), aa=False) 
                 #Convert the plot into a image string and get its size
                 canvas = agg.FigureCanvasAgg(fig)
-                print(canvas)
                 canvas.draw()
                 renderer = canvas.get_renderer()
                 raw_data = renderer.tostring_rgb()

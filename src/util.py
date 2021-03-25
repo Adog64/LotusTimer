@@ -144,7 +144,7 @@ class Session:
         return type
 
     def add_time(self, time, scramble, timestamp):
-        self.data[f'session{self.session_number}'].append([time, scramble, timestamp])
+        self.data[f'session{self.session_number}'].append([time, scramble, '', timestamp])
         os.remove(self.path)
         with open(self.path, 'w') as f:
             json.dump(self.data, f)
