@@ -21,6 +21,7 @@ class AppComponent:
         self.center = center
         self.enabled = enabled
         self.selected = False
+        self.updated = False
         self.rect = pygame.Rect(center[0]-size[0]/2, center[1]-size[1]/2, size[0], size[1])
 
     def disable(self):
@@ -40,6 +41,9 @@ class AppComponent:
     
     def select(self):
         self.selected = True
+
+    def update(self):
+        self.updated = False
 
     def deselect(self):
         self.selected = False
@@ -68,38 +72,49 @@ class TextBox(AppComponent, Enterable):
     def select(self):
         self.selected = True
         self.box.select()
+        self.update()
     
     def deselect(self):
         self.selected = False
         self.box.deselect()
+        self.update()
 
     def render(self, window):
-        if not self.valid():
-            self.box.border_color = self.invalid_color
+        if not self.updated:
+            if not self.valid():
+                self.box.border_color = self.invalid_color
+            else:
+                self.box.border_color = self.border_color
+            self.surface = self.font.render(self.text, True, self.text_color)
+            if self.surface.get_rect().width > self.size[0]:
+                self.surface = pygame.transform.scale(self.surface, self.size)
+            self.surface_rect = self.surface.get_rect()
+            self.surface_rect.center = self.center
+            if self.bordered:
+                self.box.rect.center = self.center
+                self.box.render(window)
+            if self.text != '':
+                window.blit(self.surface, self.surface_rect)
+            self.updated = True
         else:
-            self.box.border_color = self.border_color
-        surface = self.font.render(self.text, True, self.text_color)
-        if surface.get_rect().width > self.size[0]:
-            surface = pygame.transform.scale(surface, self.size)
-        surface_rect = surface.get_rect()
-        surface_rect.center = self.center
-        if self.bordered:
-            self.box.rect.center = self.center
             self.box.render(window)
-        if self.text != '':
-            window.blit(surface, surface_rect)
+            window.blit(self.surface, self.surface_rect)
     
     def valid(self):
         return self.is_valid_entry(self.text)
 
     def enter(self, char):
-            self.text += char
+        self.text += char
+        print('text entered')
+        self.update()
 
     def clear(self):
         self.text = ""
+        self.update()
 
     def backspace(self):
         self.text = self.text[:-1]
+        self.update()
 
 #display an image on the screen or another component
 class Image(AppComponent):
@@ -254,46 +269,58 @@ class Label(AppComponent):
         self.height = self.fontHeight
         self.just = just
         self.scaling = scaling
+    
+    def set_text(self, text):
+        self.text = text
+        self.update()
 
     def render(self, window):
-        if not self.scaling:
-            lbl = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
-            y = 0
-            lineSpacing = -2
-            text = self.text
-            bottom = 0
+        if not self.updated:
+            if not self.scaling:
+                lbl = pygame.Surface(self.size, pygame.SRCALPHA, 32).convert_alpha()
+                y = 0
+                lineSpacing = -2
+                text = self.text
+                bottom = 0
 
-            while text:
-                i = 1
+                while text:
+                    i = 1
 
-                # determine if the row of text will be outside our area
-                if y + self.fontHeight > self.size[1]:
-                    break
+                    # determine if the row of text will be outside our area
+                    if y + self.fontHeight > self.size[1]:
+                        break
 
-                # determine maximum width of line
-                while self.font.size(text[:i])[0] < self.rect.width and i < len(text):
-                    i += 1
+                    # determine maximum width of line
+                    while self.font.size(text[:i])[0] < self.rect.width and i < len(text):
+                        i += 1
 
-                # if we've wrapped the text, then adjust the wrap to the last word      
-                if i < len(text): 
-                    i = text.rfind(" ", 0, i) + 1
+                    # if we've wrapped the text, then adjust the wrap to the last word      
+                    if i < len(text): 
+                        i = text.rfind(" ", 0, i) + 1
 
-                surface = self.font.render(text[:i], True, self.text_color)
-                sr = surface.get_rect()
-                bottom += sr.bottom
-                if self.just == 'c':
-                    lbl.blit(surface, (lbl.get_width()/2 - sr.width/2, y))
-                elif self.just == 'l':
-                    lbl.blit(surface, self.rect)
-                y += self.fontHeight + lineSpacing
+                    surface = self.font.render(text[:i], True, self.text_color)
+                    sr = surface.get_rect()
+                    bottom += sr.bottom
+                    if self.just == 'c':
+                        lbl.blit(surface, (lbl.get_width()/2 - sr.width/2, y))
+                    elif self.just == 'l':
+                        lbl.blit(surface, self.rect)
+                    y += self.fontHeight + lineSpacing
 
-                # remove the text we just blitted
-                text = text[i:]
-            window.blit(lbl, (self.rect.left, self.rect.top + (self.rect.height/2 - bottom)))
-            return text
+                    # remove the text we just blitted
+                    text = text[i:]
+                self.lbl = lbl
+                self.lblpos = (self.rect.left, self.rect.top + (self.rect.height/2 - bottom))
+                window.blit(lbl, self.lblpos)
+                self.updated = True
+                return text
+            else:
+                self.lbl = pygame.transform.smoothscale(self.font.render(self.text, True, self.text_color), self.size)
+                self.lblpos = self.rect.topleft  
+                window.blit(self.lbl, self.lblpos)
+                self.updated = True
         else:
-            lbl = pygame.transform.smoothscale(self.font.render(self.text, True, self.text_color), self.size)
-            window.blit(lbl, self.rect)
+            window.blit(self.lbl, self.lblpos)
 
 class Panel(AppComponent):
     def __init__(self, center, size, enabled=True, items=[], columns=1, column_width=100):
@@ -364,47 +391,60 @@ class ScrollBox(Panel):
             self.scrolled += self.scroll_speed
 
 class LineGraph(AppComponent):
-    def __init__(self, center, size, data, domain, linecolor=(0,0,0)):
+    def __init__(self, center, size, data, domain=None, linecolor=(0,0,0)):
+        super().__init__(center, size, enabled=True)
         self.data = np.array(data)
-        self.domain = np.array(range(domain[0], domain[1]+1))
-        self.updated = False
-        self.line_color = pygame.Color.normalize(linecolor)
+        if domain == None:
+            domain = [0, len(data)]
+        self.domain = np.array(range(domain[0], domain[1]))
+        self.line_color = [item/255 for item in linecolor]
+        print('Data', self.data)
+        print('Domain', self.domain)
 
-    def update(self, data, domain):
+    def update(self, data, domain=None):
         self.data = np.arange(data)
-        self.domain = np.array(range(domain[0], domain[1]+1))
-        self.updated = True
+        if domain == None:
+            domain = [0, len(data)]
+        self.domain = np.array(range(domain[0], domain[1]))
+        self.updated = False
+     
     
     def render(self, window):
         #Don't bother recreating the graph if the data hasn't changed
         if not self.updated:
-            #Configure the graph settings
-            fig = pylab.figure(figsize=[5, 2], dpi=100)
-            ax = fig.gca()
-            for i in ax.spines.values():
-                i.set_visible(False)
-            ax.xaxis.set_visible(False)
-            ax.tick_params(axis='y', colors=self.line_color) 
-            #Convert datapoints into an interpolated smooth curve
-            xnew = np.linspace(self.domain.min(), self.domain.max(), 5*len(self.domain)) 
-            spl = make_interp_spline(self.domain, self.data, k=3)
-            y_smooth = spl(xnew)
-            #Plot the data
-            ax.plot(xnew, y_smooth, linewidth=2, color=self.line_color, aa=True)
-            #Convert the plot into a image string and get its size
-            canvas = agg.FigureCanvasAgg(fig)
-            canvas.draw()
-            renderer = canvas.get_renderer()
-            raw_data = renderer.tostring_rgb()
-            size = canvas.get_width_height()            
-            #Turn graph string into a pygame image object and convert all white pixels to transparent
-            surface = pygame.image.fromstring(raw_data, size, "RGB").convert_alpha()
-            for x in range(surface.get_width()):
-                for y in range(surface.get_height()):
-                    if surface.get_at((x, y)) == (255, 255, 255, 255):
-                        surface.set_at((x, y), (0, 0, 0, 0))
-            #Save the image object
-            self.surface = surface
-            self.updated = True        
+            if len(self.data) > 0:
+                #Configure the graph settings
+                fig = pylab.figure(figsize=[self.size[0]/100, self.size[1]/100], dpi=100)
+                ax = fig.gca()
+                for i in ax.spines.values():
+                    i.set_visible(False)
+                ax.xaxis.set_visible(False)
+                ax.tick_params(axis='y', colors=self.line_color) 
+                #Convert datapoints into an interpolated smooth curve
+                y = np.array(self.data)
+                x = np.array(range(len(y)))
+                xs = np.linspace(0, len(y) - 1, 1000)
+
+                poly_deg = len(y) - 1
+                coefs = np.polyfit(x, y, poly_deg)
+                y_poly = np.polyval(coefs, xs)
+                #Plot the data
+                ax.plot(xs, y_poly, linewidth=2, color=(122/255, 28/255, 1), aa=True) 
+                #Convert the plot into a image string and get its size
+                canvas = agg.FigureCanvasAgg(fig)
+                print(canvas)
+                canvas.draw()
+                renderer = canvas.get_renderer()
+                raw_data = renderer.tostring_rgb()
+                size = canvas.get_width_height()
+
+                image = pygame.image.fromstring(raw_data, size, "RGB").convert_alpha()
+                for x in range(image.get_width()):
+                    for y in range(image.get_height()):
+                        if image.get_at((x, y)) == (255, 255, 255, 255):
+                            image.set_at((x, y), (255, 255, 255, 0))
+                #Save the image object
+                self.surface = image
+                self.updated = True        
         #Draw the surface
         window.blit(self.surface, self.rect)

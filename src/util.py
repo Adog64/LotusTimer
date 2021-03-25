@@ -127,9 +127,10 @@ class Session:
             for r in removes:
                 del times[r]
             times = sorted(times, reverse=True)[buffer-dnfs:-buffer]
-            print(times)
-            print(len(times)/len(penalties))        
             return stat.mean(times)
+    
+    def get_scores(self):
+        return [item[0] + item[1] for item in self.get_times() if item[0] != -1]
 
     @classmethod
     def parse_session_setting(cls):

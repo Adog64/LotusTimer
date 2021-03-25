@@ -23,12 +23,18 @@ class App:
         pg.display.set_caption(TITLE)
         pg.display.set_icon(pg.image.load(f"{self.assets}lotus_round.png"))
         window_width, window_height = self.window.get_size()
-        self.themes = open(path.join(self.APP_DIR, 'assets/themes') + '/themes.txt', 'r').readlines()
-        self.theme = self.APP_DIR + '/assets/themes/' + self.themes[0][6:-1] + '/'
-        self.theme_init(self.theme + 'options.json')
+        self.user_settings = json.load(open(f'{self.assets}options.json'))
+        self.theme = self.user_settings['theme']
+        self.background_mode = self.user_settings['background_mode']
+        background_name = self.user_settings['background_image']
+        self.background_image = None
+        if background_name != None:
+            self.background_image = pg.image.load(f'{self.assets}{background_name}')
+        self.theme_path = f'{self.assets}/themes/{self.theme}/'
+        self.theme_init(f'{self.theme_path}options.json')
         self.title_font = pg.font.Font(self.assets + title_font, TITLE_FONT_SIZE)
-        self.subtitle_font = pg.font.Font(self.theme + text_font, 30)
-        self.text_font = pg.font.Font(self.theme + text_font, 25)
+        self.subtitle_font = pg.font.Font(self.theme_path + text_font, 30)
+        self.text_font = pg.font.Font(self.theme_path + text_font, 25)
         self.init_sessions()
         self.running = True
         self.timec = len(self.session.get_times())
@@ -49,7 +55,7 @@ class App:
                     window_width, window_height = self.window.get_size()
                     self.refresh_screen_components()
                     self.screens()
-                if event.type == pg.KEYDOWN:
+                if event.type == KEYDOWN:
                     if 'Time' in self.screen.get_selected():
                         if event.unicode in TIME_CHARS:
                             self.screen.components['Time'].enter(event.unicode)
@@ -59,11 +65,13 @@ class App:
                             self.screen.components['Scramble'].text = self.session.generate_scramble()
                         elif event.key == K_BACKSPACE:
                             self.screen.components['Time'].backspace()
-                if event.type == pg.MOUSEWHEEL:
+                if event.type == MOUSEWHEEL:
                     if event.y > 0 and 'Times' in self.screen.get_selected():
                         self.screen.components['Times'].scroll_up()
                     if event.y < 0 and 'Times' in self.screen.get_selected():
                         self.screen.components['Times'].scroll_down()
+                # if event.type in (MOUSEBUTTONUP, VIDEORESIZE, KEYDOWN, MOUSEWHEEL):
+                #     self.draw()
                     
 
     def screens(self):
@@ -72,19 +80,26 @@ class App:
         'Scramble': Label(scramble_center, scramble_size,self.text_font, text_color, text=self.current_scramble, enabled=True),
         'Time': TextBox(self.subtitle_font, text_color, center=time_center, size=time_size, enterable=True, bordered=True, is_valid_entry=self.valid_time),
         'Logo': Image(logo_center, logo_size, self.logo),
-        'LogoText': Label(logo_text_center, logo_text_size, self.title_font, (122, 28, 255), text='Lotus', scaling=True),
+        'LogoText': Label(logo_text_center, logo_text_size, self.title_font, lotus_purple, text='Lotus', scaling=True),
         }
         if self.timec > 0:
             self.timer_screen = {**self.timer_screen, 
-                **{'TimeBox' : Box((188 + 305, window_height-220), (450, 400), visible=True),
-                'QuickStatsBox' : Box((window_width - 425, window_height - 220), (750, 400), visible=True),
-                'Times' : ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=25),
-                'QuickStats' : Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)}}
+                **{'TimeBox': Box((188 + 305, window_height-220), (450, 400), visible=True),
+                'QuickStatsBox': Box(stats_center, stats_size, visible=True),
+                'Times': ScrollBox(times_center, times_size, True, items=self.get_time_elements(), scroll_speed=25),
+                'QuickStats': Panel(stats_center, stats_size, items=self.stat_labels(), columns=2, column_width=310),
+                'Timetrends': LineGraph(stats_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
         self.screen = Screen(((window_width+188)/2, window_height/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
 
     def draw(self):
-        self.window.fill(background_color)
-    
+        if self.background_mode == 'solid':
+            self.window.fill(background_color)
+        elif self.background_mode == 'image':
+            if self.background_image != None:
+                self.window.blit(self.background_image, (0,0))
+            else:
+                self.window.fill((0,0,0))
+
         #render components
         self.screen.render(self.window)
         pg.display.update()
@@ -99,7 +114,8 @@ class App:
 
     def refresh_screen_components(self):
         global control_panel_center, control_panel_size, scramble_center, scramble_size,\
-         time_center, time_size, logo_center, logo_size, logo_text_center, logo_text_size
+        time_center, time_size, logo_center, logo_size, logo_text_center, logo_text_size, \
+        stats_center, stats_size, times_center, times_size, graph_size
         control_panel_center = (int(window_width*.05875), int(window_height/2))
         control_panel_size = (int(0.1175*window_width), window_height+14)
         scramble_center = (int((window_width + control_panel_size[0])/2), int(0.22222*window_height))
@@ -110,6 +126,11 @@ class App:
         logo_size = (int(.08*window_width), int(.14222*window_height))
         logo_text_center = (logo_center[0], logo_size[1])
         logo_text_size = (logo_size[0], int(0.06*window_height))
+        stats_center = (int(.74688*window_width), int(.75555*window_height))
+        stats_size = (int(.46875*window_width), int(.44444*window_height))
+        times_center = (int(.32053*window_width), stats_center[1])
+        times_size = (int(.28125*window_width), stats_size[1])
+        graph_size = (int(stats_size[0]/2), int(stats_size[1]*.9))
 
     def init_sessions(self):
         sessions = []
@@ -133,8 +154,8 @@ class App:
                     ts += ' (+2)'
                 if penalty == -1:
                     ts = 'DNF'
-                elelments.append([
-                    Label((100, 40), (200, 80), self.text_font, text_color, str(idx) + '.   ' + ts, just='l')])
+                elelments.append(
+                    Label((100, 40), (200, 80), self.text_font, text_color, str(idx) + '.   ' + ts, just='l'))
                     #Button((300, 40), (100, 80), text_font=self.text_font, text='Delete', toggle=False, when_pressed=self.delete_time_button_press, wp_arg=idx)])
         elelments = elelments[-1::-1]
         return elelments
@@ -163,6 +184,7 @@ class App:
             self.session.add_time([penalty, score], scramble, timestamp)
             self.screen.components['Times'].items = self.get_time_elements()
             self.screen.components['QuickStats'].items = self.stat_labels()
+            self.screen.components['Graph'].update()
 
     def format_time(self, time_ms):
         if time_ms == None or time_ms == '':

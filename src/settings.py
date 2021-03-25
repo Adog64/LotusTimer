@@ -17,6 +17,11 @@ logo_center = (control_panel_center[0], int(0.07111*window_height))
 logo_size = (int(.08*window_width), int(.14222*window_height))
 logo_text_center = (logo_center[0], logo_size[1])
 logo_text_size = (logo_size[0], int(0.06*window_height))
+stats_center = (int(.74688*window_width), int(.75555*window_height))
+stats_size = (int(.46875*window_width), int(.44444*window_height))
+times_center = (int(.32053*window_width), stats_center[1])
+times_size = (int(.28125*window_width), stats_size[1])
+graph_size = (int(stats_size[0]/2), int(stats_size[1]*.9))
 
 #time constants
 H_MS = 1000*60*60
@@ -33,6 +38,7 @@ border_color = text_color
 box_fill_color = (38, 38, 38) #(45, 45, 50)
 logo = 'lotus.png'
 button_img_gap = 5
+lotus_purple = (122, 28, 255)
 
 #scramble settings
 R_MOVES = ("R","R'","R2")
