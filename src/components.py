@@ -65,7 +65,7 @@ class TextBox(AppComponent, Enterable):
         self.bordered = bordered
         self.border_color = border_color
         self.invalid_color = invalid_color
-        self.box = Box(self.center, self.size, enabled=enabled, bordered=enterable, visible=bordered, border_color=border_color, fill_color=background_color)
+        self.box = Box(self.center, self.size, enabled=enabled, bordered=enterable, visible=bordered, border_color=border_color, fill_color=box_fill_color)
         self.is_valid_entry = is_valid_entry
 
     def select(self):
@@ -339,8 +339,8 @@ class Panel(AppComponent):
         col = 0
         ipc = int(len(self.items)/self.columns)
         row = 0
-        if len(self.items)%2 != 0:
-            row -= 1
+        # if len(self.items)%2 != 0:
+        #     row -= 1
         for i in self.items:
             if isinstance(i, Iterable): 
                 left = i[0].rect.left
@@ -408,18 +408,19 @@ class LineGraph(AppComponent):
             if len(self.data) > 0:
                 #Configure the graph settings
                 fig = pylab.figure(figsize=[self.size[0]/100, self.size[1]/100], dpi=100)
-                #fig.yticklabels.fontsize = 50
+                fig.patch.set_visible(False)
                 ax = fig.gca()
                 for i in ax.spines.values():
                     i.set_visible(False)
                 ax.xaxis.set_visible(False)
                 ax.tick_params(axis='y', colors=self.line_color) 
-                #Convert datapoints into an interpolated smooth curve
+
+                #Convert datapoints into a polynomial
                 y = np.array(self.data)
                 x = np.array(range(len(y)))
                 xs = np.linspace(0, len(y) - 1, self.size[1])
 
-                poly_deg = len(y) - 1
+                poly_deg = min(len(y) - 1, 30)
                 coefs = np.polyfit(x, y, poly_deg)
                 y_poly = np.polyval(coefs, xs)
                 #Plot the data

@@ -70,9 +70,6 @@ class App:
                         self.screen.components['Times'].scroll_up()
                     if event.y < 0 and 'Times' in self.screen.get_selected():
                         self.screen.components['Times'].scroll_down()
-                # if event.type in (MOUSEBUTTONUP, VIDEORESIZE, KEYDOWN, MOUSEWHEEL):
-                #     self.draw()
-                    
 
     def screens(self):
         self.timer_screen = {
@@ -87,7 +84,7 @@ class App:
                 **{'TimeBox': Box(times_box_center, times_box_size, visible=True),
                 'QuickStatsBox': Box(stats_center, stats_size, visible=True),
                 'Times': ScrollBox(times_center, times_size, True, items=self.get_time_elements(), scroll_speed=25),
-                'QuickStats': Panel(stats_center, stats_size, items=self.stat_labels(), columns=2, column_width=310),
+                'QuickStats': Panel(stats_lbls_center, stats_size, items=self.stat_labels(), columns=2, column_width=310),
                 'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
         self.screen = Screen(((window_width+188)/2, window_height/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
 
@@ -115,7 +112,9 @@ class App:
     def refresh_screen_components(self):
         global control_panel_center, control_panel_size, scramble_center, scramble_size,\
         time_center, time_size, logo_center, logo_size, logo_text_center, logo_text_size, \
-        stats_center, stats_size, times_center, times_size, graph_size
+        stats_center, stats_size, times_center, times_size, graph_size, stats_lbls_center, \
+        graph_center, times_box_center, times_box_size        
+
         control_panel_center = (int(window_width*.05875), int(window_height/2))
         control_panel_size = (int(0.1175*window_width), window_height+14)
         scramble_center = (int((window_width + control_panel_size[0])/2), int(0.22222*window_height))
@@ -127,10 +126,16 @@ class App:
         logo_text_center = (logo_center[0], logo_size[1])
         logo_text_size = (logo_size[0], int(0.06*window_height))
         stats_center = (int(.74688*window_width), int(.75555*window_height))
+        stats_lbls_center = (int(0.01188*window_width)+stats_center[0], stats_center[1])
         stats_size = (int(.46875*window_width), int(.44444*window_height))
+        times_box_center = (int(0.30813*window_width), stats_center[1])
+        times_box_size = (int(.28125*window_width), stats_size[1])
         times_center = (int(.32053*window_width), stats_center[1])
-        times_size = (int(.28125*window_width), stats_size[1])
-        graph_size = (int(stats_size[0]/2), int(stats_size[1]*.9))
+        times_size = (times_box_size[0], stats_size[1])
+        graph_center = (stats_center[0], stats_center[1]+int(stats_size[1]/4))
+        graph_size = (int(stats_size[0]*0.9), int(stats_size[1]/2))
+
+        
 
     def init_sessions(self):
         sessions = []
@@ -212,14 +217,16 @@ class App:
         ao12 = self.format_time(self.session.ao12)
         avg = self.format_time(self.session.avg)
         sdev = self.format_time(self.session.sdev)
+        solve_rate = f'{len(self.session.solve_rate[0])}/{self.session.solve_rate[1]}'
+        print(solve_rate)
         
         labels = [
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Best:   {best}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Ao5:   {ao5}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Ao12:    {ao12}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Mean:   {avg}', just='l'),
-            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'S Dev:   {sdev}', just='l')]
-            #Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Solved:   {solve_rate}', just='l')]
+            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'S Dev:   {sdev}', just='l'),
+            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Solved:   {solve_rate}', just='l')]
         return labels           
 
     def time_ms(self, time):

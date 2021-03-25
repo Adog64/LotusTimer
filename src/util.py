@@ -111,7 +111,6 @@ class Session:
         penalties = [item[0] for item in penalties_times]
         times = [item[0] + item[1] for item in penalties_times]
         dnfs = penalties.count(-1)
-        aon = 0
         buffer = ceil(0.05*len(times))
 
         #not correct number of times
