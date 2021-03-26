@@ -5,7 +5,6 @@ import numpy as np
 import matplotlib
 matplotlib.use("Agg")
 import matplotlib.backends.backend_agg as agg
-from scipy.interpolate import make_interp_spline
 import pylab
 
 class Enterable:

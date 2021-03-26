@@ -1,5 +1,5 @@
 {
-"theme":"cyberpunk",
-"background_mode":"solid",
+"theme":"default",
+"background_mode":"image",
 "background_image":"cubehead.png"
 }
