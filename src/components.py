@@ -104,7 +104,6 @@ class TextBox(AppComponent, Enterable):
 
     def enter(self, char):
         self.text += char
-        print('text entered')
         self.update()
 
     def clear(self):
@@ -330,6 +329,10 @@ class Panel(AppComponent):
         self.items_height = 0
         self.columns = columns
         self.column_width = column_width
+
+    def set_items(self, items=[]):
+        self.items = items
+        self.update()
     
     def render(self, window):
         self.surface.fill((0,0,0,0))
@@ -339,36 +342,42 @@ class Panel(AppComponent):
         col = 0
         ipc = int(len(self.items)/self.columns)
         row = 0
-        # if len(self.items)%2 != 0:
-        #     row -= 1
+        if len(self.items)%2 != 0:
+            row -= 1
         for i in self.items:
-            if isinstance(i, Iterable): 
-                left = i[0].rect.left
-                right = i[0].rect.right
-                top = i[0].rect.top
-                bottom = i[0].rect.bottom
-                for j in i:
-                    left = min(j.rect.left, left)
-                    right = max(j.rect.right, right)
-                    top = min(j.rect.top, top)
-                    bottom = max(j.rect.bottom, bottom)
-                s = pygame.Surface((right-left, bottom-top), pygame.SRCALPHA, 32).convert_alpha()
-                for j in i:
-                    j.render(s)
-                    self.surface.blit(s, (j.rect.left + col*self.column_width, y))
-                    y += bottom-top + spacing                
-            else:
-                s = pygame.Surface(i.size, pygame.SRCALPHA, 32).convert_alpha()
-                i.render(s)
-                self.surface.blit(s, (i.rect.left + col*self.column_width, y))
-                y += i.height + spacing
-            self.items_bottom = y
-            self.items_height = min(y, self.size[1])
-            row += 1
-            if row == ipc:
-                col += 1
-                row = 0
-                y = self.scrolled
+            if not self.updated:
+                if isinstance(i, Iterable): 
+                    left = i[0].rect.left
+                    right = i[0].rect.right
+                    top = i[0].rect.top
+                    bottom = i[0].rect.bottom
+                    for j in i:
+                        left = min(j.rect.left, left)
+                        right = max(j.rect.right, right)
+                        top = min(j.rect.top, top)
+                        bottom = max(j.rect.bottom, bottom)
+                    s = pygame.Surface((right-left, bottom-top), pygame.SRCALPHA, 32).convert_alpha()
+                    for j in i:
+                        j.render(s)
+                        self.surface.blit(s, (j.rect.left + col*self.column_width, y))
+                        y += bottom-top + spacing                
+                else:
+                    # top = i.rect.top
+                    # bottom = i.rect.bottom
+                    # if bottom > self.rect.top or top < self.rect.bottom:
+                    #     y += i.height + spacing
+                    #     continue
+                    s = pygame.Surface(i.size, pygame.SRCALPHA, 32).convert_alpha()
+                    i.render(s)
+                    self.surface.blit(s, (i.rect.left + col*self.column_width, y))
+                    y += i.height + spacing
+                self.items_bottom = y
+                self.items_height = min(y, self.size[1])
+                row += 1
+                if row == ipc:
+                    col += 1
+                    row = 0
+                    y = self.scrolled
         window.blit(self.surface, self.rect)
             
 
@@ -380,10 +389,12 @@ class ScrollBox(Panel):
     def scroll_up(self):
         if self.selected and self.items_bottom > self.items_height:
             self.scrolled -= self.scroll_speed
+            self.update()
     
     def scroll_down(self):
         if self.selected and self.scrolled < 0:
             self.scrolled += self.scroll_speed
+            self.update()
 
 
 class LineGraph(AppComponent):
@@ -410,6 +421,7 @@ class LineGraph(AppComponent):
                 fig = pylab.figure(figsize=[self.size[0]/100, self.size[1]/100], dpi=100)
                 fig.patch.set_visible(False)
                 ax = fig.gca()
+                ax.patch.set_visible(False)
                 for i in ax.spines.values():
                     i.set_visible(False)
                 ax.xaxis.set_visible(False)
@@ -424,7 +436,7 @@ class LineGraph(AppComponent):
                 coefs = np.polyfit(x, y, poly_deg)
                 y_poly = np.polyval(coefs, xs)
                 #Plot the data
-                ax.plot(xs, y_poly, linewidth=2, color=(122/255, 28/255, 1), aa=False) 
+                ax.plot(xs, y_poly, linewidth=2, color=(122/255, 28/255, 1), aa=True) 
                 #Convert the plot into a image string and get its size
                 canvas = agg.FigureCanvasAgg(fig)
                 canvas.draw()

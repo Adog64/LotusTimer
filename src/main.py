@@ -23,13 +23,14 @@ class App:
         pg.display.set_caption(TITLE)
         pg.display.set_icon(pg.image.load(f"{self.assets}lotus_round.png"))
         window_width, window_height = self.window.get_size()
-        self.user_settings = json.load(open(f'{self.assets}options.json'))
-        self.theme = self.user_settings['theme']
-        self.background_mode = self.user_settings['background_mode']
-        background_name = self.user_settings['background_image']
+        self.timer_options = json.load(open(f'{self.assets}timer_options.json'))
+        self.theme = self.timer_options['theme']
+        self.background_mode = self.timer_options['background_mode']
+        background_name = self.timer_options['background_image']
         self.background_image = None
         if background_name != None:
-            self.background_image = pg.image.load(f'{self.assets}{background_name}')
+            self.bgi_path = f'{self.assets}{background_name}'
+            self.background_image = pg.transform.smoothscale(pg.image.load(self.bgi_path), (window_width, window_height))
         self.theme_path = f'{self.assets}/themes/{self.theme}/'
         self.theme_init(f'{self.theme_path}options.json')
         self.title_font = pg.font.Font(self.assets + title_font, TITLE_FONT_SIZE)
@@ -53,6 +54,7 @@ class App:
                 if event.type == VIDEORESIZE:
                     self.window = pg.display.set_mode((event.w, event.h), pg.RESIZABLE)
                     window_width, window_height = self.window.get_size()
+                    self.background_image = pg.transform.smoothscale(pg.image.load(self.bgi_path), (window_width, window_height))
                     self.refresh_screen_components()
                     self.screens()
                 if event.type == KEYDOWN:

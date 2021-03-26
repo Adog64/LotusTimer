@@ -66,7 +66,7 @@ class ScrambleGenerator:
         pass
 
 class Session:
-    def __init__(self, path, session=1, type='3x3'):
+    def __init__(self, path, session=1, type='4x4'):
         self.session_number = session
         self.path = path
         self.best = None

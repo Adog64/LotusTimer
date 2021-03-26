@@ -1,7 +1,7 @@
 #application data
 TITLE = 'Lotus'
-DEFAULT_WINDOW_WIDTH = 1600
-DEFAULT_WINDOW_HEIGHT = 900
+DEFAULT_WINDOW_WIDTH = 1280
+DEFAULT_WINDOW_HEIGHT = 720
 window_width = DEFAULT_WINDOW_WIDTH
 window_height = DEFAULT_WINDOW_HEIGHT
 DEFAULT_WINDOW_SIZE = (DEFAULT_WINDOW_WIDTH, DEFAULT_WINDOW_HEIGHT)
@@ -37,9 +37,9 @@ title_font = 'logo.ttf'
 text_font = 'arial.ttf'
 TITLE_FONT_SIZE = 50
 text_color = (183, 183, 183)
-background_color = (51, 51, 51)
+background_color = (54,57,63)#(51, 51, 51)
 border_color = text_color
-box_fill_color = (38, 38, 38) #(45, 45, 50)
+box_fill_color = (38, 38, 38) #(45, 45, 50)#(200,200,200)
 logo = 'lotus.png'
 button_img_gap = 5
 lotus_purple = (122, 28, 255)
