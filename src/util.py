@@ -1,9 +1,5 @@
-from decimal import ROUND_CEILING
 import os
-from time import time
-import pygame
-import random
-#from src.settings import *
+from src.settings import *
 import json
 import configparser
 import spotipy
