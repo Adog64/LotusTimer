@@ -39,7 +39,7 @@ class App:
         self.init_sessions()
         self.running = True
         self.timec = len(self.session.get_times())
-        self.current_scramble = self.session.generate_scramble()
+        self.current_scramble = self.session.get_scramble()
         self.screens()
         
 
@@ -64,7 +64,7 @@ class App:
                         elif event.key == K_RETURN and self.screen.components['Time'].valid():
                             self.publish_time(self.screen.components['Time'].text, self.screen.components['Scramble'].text)
                             self.screen.components['Time'].clear()
-                            self.screen.components['Scramble'].text = self.session.generate_scramble()
+                            self.screen.components['Scramble'].set_text(self.session.get_scramble())
                         elif event.key == K_BACKSPACE:
                             self.screen.components['Time'].backspace()
                 if event.type == MOUSEWHEEL:
@@ -99,9 +99,13 @@ class App:
             else:
                 self.window.fill((0,0,0))
 
+
         #render components
         self.screen.render(self.window)
         pg.display.update()
+        #check scramble queue
+        if self.session.queue_ready:
+            self.session.add_to_queue()
 
     def theme_init(self, path):
         global background_color, text_color, border_color, box_fill_color
@@ -140,11 +144,20 @@ class App:
         
 
     def init_sessions(self):
-        sessions = []
-        for i in range(10):
-            sessions.append(Session( self.APP_DIR + '/assets/session_data.json', i+1))
-        self.sessions = sessions
-        self.session = sessions[0]
+        self.sessions = {
+            '3x3': Session(self.APP_DIR + '/assets/session_data.json', 1, '3x3'),
+            '2x2': Session(self.APP_DIR + '/assets/session_data.json', 1, '2x2'),
+            '4x4': Session(self.APP_DIR + '/assets/session_data.json', 1, '4x4'),
+            '5x5': Session(self.APP_DIR + '/assets/session_data.json', 1, '5x5'),
+            '6x6': Session(self.APP_DIR + '/assets/session_data.json', 1, '6x6'),
+            '7x7': Session(self.APP_DIR + '/assets/session_data.json', 1, '7x7'),
+            'sqn': Session(self.APP_DIR + '/assets/session_data.json', 1, 'sqn'),
+            'skb': Session(self.APP_DIR + '/assets/session_data.json', 1, 'skb'),
+            'mgm': Session(self.APP_DIR + '/assets/session_data.json', 1, 'mgm'),
+            'pyr': Session(self.APP_DIR + '/assets/session_data.json', 1, 'pyr'),
+            'clk': Session(self.APP_DIR + '/assets/session_data.json', 1, 'clk')
+        }
+        self.session = self.sessions['3x3']
 
     def get_time_elements(self):
         times = self.session.get_times()
@@ -220,7 +233,6 @@ class App:
         avg = self.format_time(self.session.avg)
         sdev = self.format_time(self.session.sdev)
         solve_rate = f'{len(self.session.solve_rate[0])}/{self.session.solve_rate[1]}'
-        print(solve_rate)
         
         labels = [
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Best:   {best}', just='l'),

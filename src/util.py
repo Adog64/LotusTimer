@@ -14,7 +14,7 @@ class ScrambleGenerator:
     puzzle_types = {'2x2':scrambler222, '3x3':scrambler333,
             '4x4':scrambler444, '5x5':scrambler555, '6x6':scrambler666,
             '7x7':scrambler777, 'sqn':squareOneScrambler, 'skb':skewbScrambler,
-            'mega':megaminxScrambler, 'pyra':pyraminxScrambler, 'clk':clockScrambler}
+            'mgm':megaminxScrambler, 'pyr':pyraminxScrambler, 'clk':clockScrambler}
 
     def __init__(self, puzzle='3x3'):
         self.puzzle = puzzle
@@ -75,10 +75,18 @@ class Session:
         self.ao100 = None
         self.ao1000 = None
         self.puzzle = type
+        self.queue = []
+        self.add_to_queue()
         self.retrieve_data()
 
-    def generate_scramble(self):
-        return ScrambleGenerator.generate_scramble(self.puzzle)
+    def get_scramble(self):
+        self.queue_ready = True
+        return self.queue.pop(0)
+
+    
+    def add_to_queue(self):
+        self.queue.append(ScrambleGenerator.generate_scramble(self.puzzle))
+        self.queue_ready = False
 
     def retrieve_data(self):
         self.data = json.load(open(self.path))

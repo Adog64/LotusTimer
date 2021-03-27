@@ -79,7 +79,7 @@ class TextBox(AppComponent, Enterable):
 
     def render(self, window):
         if not self.updated:
-            if not self.valid():
+            if self.text != '' and not self.valid():
                 self.box.border_color = self.invalid_color
             else:
                 self.box.border_color = self.border_color
