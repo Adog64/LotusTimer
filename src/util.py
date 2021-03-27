@@ -1,5 +1,5 @@
 import os
-from src.settings import *
+from .settings import *
 import json
 import configparser
 import spotipy

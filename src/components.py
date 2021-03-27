@@ -1,5 +1,5 @@
 import pygame
-from src.settings import *
+from .settings import *
 from collections.abc import Iterable
 import numpy as np
 import matplotlib

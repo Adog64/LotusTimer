@@ -5,9 +5,9 @@ import pygame as pg
 import sys
 from pygame.locals import *
 from random import randint
-from src.settings import *
-from src.components import *
-from src.util import *
+from .settings import *
+from .components import *
+from .util import *
 import json
 import time
 
@@ -36,6 +36,7 @@ class App:
         self.title_font = pg.font.Font(self.assets + title_font, TITLE_FONT_SIZE)
         self.subtitle_font = pg.font.Font(self.theme_path + text_font, 30)
         self.text_font = pg.font.Font(self.theme_path + text_font, 25)
+        self.loading_screen()
         self.init_sessions()
         self.running = True
         self.timec = len(self.session.get_times())
@@ -76,7 +77,7 @@ class App:
     def screens(self):
         self.timer_screen = {
         'ControlPanel': Box(control_panel_center, control_panel_size, visible=True, fill_color=box_fill_color),
-        'Scramble': Label(scramble_center, scramble_size,self.text_font, text_color, text=self.current_scramble, enabled=True),
+        'Scramble': Label(scramble_center, scramble_size, self.text_font, text_color, text=self.current_scramble, enabled=True),
         'Time': TextBox(self.subtitle_font, text_color, center=time_center, size=time_size, enterable=True, bordered=True, is_valid_entry=self.valid_time),
         'Logo': Image(logo_center, logo_size, self.logo),
         'LogoText': Label(logo_text_center, logo_text_size, self.title_font, lotus_purple, text='Lotus', scaling=True),
@@ -99,13 +100,18 @@ class App:
             else:
                 self.window.fill((0,0,0))
 
-
         #render components
         self.screen.render(self.window)
         pg.display.update()
         #check scramble queue
         if self.session.queue_ready:
             self.session.add_to_queue()
+
+    def loading_screen(self):
+        self.window.fill(box_fill_color)
+        Image((window_width/2, window_height/2), logo_size, self.logo).render(self.window)
+        #Label((window_width/2, window_height/2 + logo_size[1] + 25), logo_text_size, self.title_font, lotus_purple, "Loading User Data...").render(self.window)
+        pg.display.update()
 
     def theme_init(self, path):
         global background_color, text_color, border_color, box_fill_color
