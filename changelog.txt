@@ -1,11 +1,12 @@
 =====BUG FIXES=====
-*Fixed bugs with static screen resolution making it impossible to close the window
-*Fixed bugs with finding averages
+-Fixed bugs with static screen resolution making it impossible to close the window
+-Fixed bugs with finding averages
 
 =====NEW FEATURES=====
-*Added ALL THE PUZZLES (Although there still isn't a way to change puzzles D:)
-*Added time trends graph
-*Resizeable window! - Looks the same no matter your monitor size!
-*PB Ao5 and Ao12
+-Added ALL THE PUZZLES (Although there still isn't a way to change puzzles D:)
+-Added time trends graph
+-Reformatted statistics
+-New standard deviation statistic
+-Resizeable window! - Looks the same no matter your monitor size!
 
 
