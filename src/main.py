@@ -200,12 +200,12 @@ class App:
             score = score[:-3]
         score = self.time_ms(score)
         if self.timec == 0:
-            self.timer_screen = {**self.timer_screen, **{
-            ['TimeBox']: Box((188 + 305, window_height-220), (450, 400), visible=True),
+            self.timer_screen = self.timer_screen.update({
+            'TimeBox': Box((188 + 305, window_height-220), (450, 400), visible=True),
             'QuickStatsBox': Box((window_width - 425, window_height - 220), (750, 400), visible=True),
             'Times': ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=35),
             'QuickStats': Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310),
-            'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
+            'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)})
         self.timec += 1
         if score > 0  or penalty == -1:
             timestamp = int(time.time())
@@ -238,15 +238,15 @@ class App:
         ao12 = self.format_time(self.session.ao12)
         avg = self.format_time(self.session.avg)
         sdev = self.format_time(self.session.sdev)
-        solve_rate = f'{len(self.session.solve_rate[0])}/{self.session.solve_rate[1]}'
+        #solve_rate = f'{len(self.session.solve_rate[0])}/{self.session.solve_rate[1]}'
         
         labels = [
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Best:   {best}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Ao5:   {ao5}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Ao12:    {ao12}', just='l'),
             Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Mean:   {avg}', just='l'),
-            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'S Dev:   {sdev}', just='l'),
-            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Solved:   {solve_rate}', just='l')]
+            Label((100, 40), (200, 80), self.subtitle_font, text_color, f'S Dev:   {sdev}', just='l')]
+            #Label((100, 40), (200, 80), self.subtitle_font, text_color, f'Solved:   {solve_rate}', just='l')]
         return labels           
 
     def time_ms(self, time):
