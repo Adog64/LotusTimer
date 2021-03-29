@@ -3,28 +3,22 @@ from .settings import *
 import json
 import configparser
 import spotipy
-from pyTwistyScrambler import scrambler222, scrambler333, scrambler444, \
-scrambler555, scrambler666, scrambler777, skewbScrambler, \
-squareOneScrambler, megaminxScrambler, pyraminxScrambler, clockScrambler
 from spotipy.oauth2 import SpotifyOAuth
+from twisties.scrambler import WCA_Scrambler
 import statistics as stat
 from math import ceil
 
 class ScrambleGenerator:
-    puzzle_types = {'2x2':scrambler222, '3x3':scrambler333,
-            '4x4':scrambler444, '5x5':scrambler555, '6x6':scrambler666,
-            '7x7':scrambler777, 'sqn':squareOneScrambler, 'skb':skewbScrambler,
-            'mgm':megaminxScrambler, 'pyr':pyraminxScrambler, 'clk':clockScrambler}
-
     def __init__(self, puzzle='3x3'):
         self.puzzle = puzzle
+        self.wca = WCA_Scrambler()
         # self.moves = self.get_moves(puzzle)
         # self.length = SCRAMBLE_LENGTHS[puzzle]
         # self.scramble = ""
 
     @classmethod
     def generate_scramble(cls, puzzle="3x3"):
-        return cls.puzzle_types[puzzle].get_WCA_scramble().replace('/', ' / ')
+        return cls.wca.get_wca_scramble(puzzle)
         # gen = ScrambleGenerator(puzzle)
         # sets = []
         # for x in range(random.randint(gen.length[0], gen.length[1])):
@@ -62,7 +56,7 @@ class ScrambleGenerator:
         pass
 
 class Session:
-    def __init__(self, path, session=1, type='4x4'):
+    def __init__(self, path, session, type, scrambles):
         self.session_number = session
         self.path = path
         self.best = None
@@ -95,11 +89,11 @@ class Session:
         for t in times:
             if t[0] >=0:
                 solved.append(t[1]+t[0])
-        if len(times) > 0:
+        if len(solved) > 0:
             self.solve_rate = [solved, len(times)]
             self.avg = stat.mean(solved)
             self.best = min(solved)
-        if len(times) > 1:
+        if len(solved) > 1:
             self.sdev = stat.stdev(solved)
         if len(times) >= 5:
             self.ao5 = self.get_WCA_AoN(n=5, penalties_times=times[:5])

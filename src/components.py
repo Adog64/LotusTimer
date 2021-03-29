@@ -1,11 +1,11 @@
 import pygame
 from .settings import *
 from collections.abc import Iterable
-import numpy as np
-import matplotlib
-matplotlib.use("Agg")
-import matplotlib.backends.backend_agg as agg
-import pylab
+#import numpy as np
+#import matplotlib
+#matplotlib.use("Agg")
+#import matplotlib.backends.backend_agg as agg
+#import pylab
 
 class Enterable:
     def __init__(self):
@@ -396,60 +396,60 @@ class ScrollBox(Panel):
             self.update()
 
 
-class LineGraph(AppComponent):
-    def __init__(self, center, size, data, domain=None, linecolor=(0,0,0)):
-        super().__init__(center, size, enabled=True)
-        self.data = [item/1000 for item in data]
-        if domain == None:
-            domain = [0, len(data)]
-        self.domain = np.array(range(domain[0], domain[1]))
-        self.line_color = [item/255 for item in linecolor]
+# class LineGraph(AppComponent):
+#     def __init__(self, center, size, data, domain=None, linecolor=(0,0,0)):
+#         super().__init__(center, size, enabled=True)
+#         self.data = [item/1000 for item in data]
+#         if domain == None:
+#             domain = [0, len(data)]
+#         self.domain = np.array(range(domain[0], domain[1]))
+#         self.line_color = [item/255 for item in linecolor]
 
-    def update(self, data, domain=None):
-        self.data = [item/1000 for item in data]
-        if domain == None:
-            domain = [0, len(data)]
-        self.domain = np.array(range(domain[0], domain[1]))
-        self.updated = False
+#     def update(self, data, domain=None):
+#         self.data = [item/1000 for item in data]
+#         if domain == None:
+#             domain = [0, len(data)]
+#         self.domain = np.array(range(domain[0], domain[1]))
+#         self.updated = False
      
-    def render(self, window):
-        #Don't bother recreating the graph if the data hasn't changed
-        if not self.updated:
-            if len(self.data) > 0:
-                #Configure the graph settings
-                fig = pylab.figure(figsize=[self.size[0]/100, self.size[1]/100], dpi=100)
-                fig.patch.set_visible(False)
-                ax = fig.gca()
-                ax.patch.set_visible(False)
-                for i in ax.spines.values():
-                    i.set_visible(False)
-                ax.xaxis.set_visible(False)
-                ax.tick_params(axis='y', colors=self.line_color) 
+#     def render(self, window):
+#         #Don't bother recreating the graph if the data hasn't changed
+#         if not self.updated:
+#             if len(self.data) > 0:
+#                 #Configure the graph settings
+#                 fig = pylab.figure(figsize=[self.size[0]/100, self.size[1]/100], dpi=100)
+#                 fig.patch.set_visible(False)
+#                 ax = fig.gca()
+#                 ax.patch.set_visible(False)
+#                 for i in ax.spines.values():
+#                     i.set_visible(False)
+#                 ax.xaxis.set_visible(False)
+#                 ax.tick_params(axis='y', colors=self.line_color) 
 
-                #Convert datapoints into a polynomial
-                y = np.array(self.data)
-                x = np.array(range(len(y)))
-                xs = np.linspace(0, len(y) - 1, self.size[1])
+#                 #Convert datapoints into a polynomial
+#                 y = np.array(self.data)
+#                 x = np.array(range(len(y)))
+#                 xs = np.linspace(0, len(y) - 1, self.size[1])
 
-                poly_deg = min(len(y) - 1, 30)
-                coefs = np.polyfit(x, y, poly_deg)
-                y_poly = np.polyval(coefs, xs)
-                #Plot the data
-                ax.plot(xs, y_poly, linewidth=2, color=(122/255, 28/255, 1), aa=True) 
-                #Convert the plot into a image string and get its size
-                canvas = agg.FigureCanvasAgg(fig)
-                canvas.draw()
-                renderer = canvas.get_renderer()
-                raw_data = renderer.tostring_rgb()
-                size = canvas.get_width_height()
+#                 poly_deg = min(len(y) - 1, 30)
+#                 coefs = np.polyfit(x, y, poly_deg)
+#                 y_poly = np.polyval(coefs, xs)
+#                 #Plot the data
+#                 ax.plot(xs, y_poly, linewidth=2, color=(122/255, 28/255, 1), aa=True) 
+#                 #Convert the plot into a image string and get its size
+#                 canvas = agg.FigureCanvasAgg(fig)
+#                 canvas.draw()
+#                 renderer = canvas.get_renderer()
+#                 raw_data = renderer.tostring_rgb()
+#                 size = canvas.get_width_height()
 
-                image = pygame.image.fromstring(raw_data, size, "RGB").convert_alpha()
-                for x in range(image.get_width()):
-                    for y in range(image.get_height()):
-                        if image.get_at((x, y)) == (255, 255, 255, 255):
-                            image.set_at((x, y), (255, 255, 255, 0))
-                #Save the image object
-                self.surface = image
-                self.updated = True        
-        #Draw the surface
-        window.blit(self.surface, self.rect)
+#                 image = pygame.image.fromstring(raw_data, size, "RGB").convert_alpha()
+#                 for x in range(image.get_width()):
+#                     for y in range(image.get_height()):
+#                         if image.get_at((x, y)) == (255, 255, 255, 255):
+#                             image.set_at((x, y), (255, 255, 255, 0))
+#                 #Save the image object
+#                 self.surface = image
+#                 self.updated = True        
+#         #Draw the surface
+#         window.blit(self.surface, self.rect)

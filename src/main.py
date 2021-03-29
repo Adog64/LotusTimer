@@ -4,7 +4,7 @@ environ['PYGAME_HIDE_SUPPORT_PROMPT'] = '1'
 import pygame as pg
 import sys
 from pygame.locals import *
-from random import randint
+from random import randint, weibullvariate
 from .settings import *
 from .components import *
 from .util import *
@@ -87,8 +87,8 @@ class App:
                 **{'TimeBox': Box(times_box_center, times_box_size, visible=True),
                 'QuickStatsBox': Box(stats_center, stats_size, visible=True),
                 'Times': ScrollBox(times_center, times_size, True, items=self.get_time_elements(), scroll_speed=25),
-                'QuickStats': Panel(stats_lbls_center, stats_size, items=self.stat_labels(), columns=2, column_width=310),
-                'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
+                'QuickStats': Panel(stats_lbls_center, stats_size, items=self.stat_labels(), columns=2, column_width=310)}}
+                #'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
         self.screen = Screen(((window_width+188)/2, window_height/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
 
     def draw(self):
@@ -96,7 +96,7 @@ class App:
             self.window.fill(background_color)
         elif self.background_mode == 'image':
             if self.background_image != None:
-                self.window.blit(self.background_image, (0,0))
+                self.window.blit(pg.transform.smoothscale(self.background_image, (window_width, window_height)), (0,0))
             else:
                 self.window.fill((0,0,0))
 
@@ -130,7 +130,7 @@ class App:
         control_panel_center = (int(window_width*.05875), int(window_height/2))
         control_panel_size = (int(0.1175*window_width), window_height+14)
         scramble_center = (int((window_width + control_panel_size[0])/2), int(0.22222*window_height))
-        scramble_size = (window_width/2, window_height/3)
+        scramble_size = (int(0.6*window_width), window_height/3)
         time_center = (scramble_center[0], int(0.28888*window_height))
         time_size = (int(.375*window_width), int(window_height/10))
         logo_center = (control_panel_center[0], int(0.07111*window_height))
@@ -151,17 +151,17 @@ class App:
 
     def init_sessions(self):
         self.sessions = {
-            '3x3': Session(self.APP_DIR + '/assets/session_data.json', 1, '3x3'),
-            '2x2': Session(self.APP_DIR + '/assets/session_data.json', 1, '2x2'),
-            '4x4': Session(self.APP_DIR + '/assets/session_data.json', 1, '4x4'),
-            '5x5': Session(self.APP_DIR + '/assets/session_data.json', 1, '5x5'),
-            '6x6': Session(self.APP_DIR + '/assets/session_data.json', 1, '6x6'),
-            '7x7': Session(self.APP_DIR + '/assets/session_data.json', 1, '7x7'),
-            'sqn': Session(self.APP_DIR + '/assets/session_data.json', 1, 'sqn'),
-            'skb': Session(self.APP_DIR + '/assets/session_data.json', 1, 'skb'),
-            'mgm': Session(self.APP_DIR + '/assets/session_data.json', 1, 'mgm'),
-            'pyr': Session(self.APP_DIR + '/assets/session_data.json', 1, 'pyr'),
-            'clk': Session(self.APP_DIR + '/assets/session_data.json', 1, 'clk')
+            '3x3': Session(self.APP_DIR + '/assets/session_data.json', 1, '3x3', f'{self.assets}scrambles.json'),
+            '2x2': Session(self.APP_DIR + '/assets/session_data.json', 1, '2x2', f'{self.assets}scrambles.json'),
+            '4x4': Session(self.APP_DIR + '/assets/session_data.json', 1, '4x4', f'{self.assets}scrambles.json'),
+            '5x5': Session(self.APP_DIR + '/assets/session_data.json', 1, '5x5', f'{self.assets}scrambles.json'),
+            '6x6': Session(self.APP_DIR + '/assets/session_data.json', 1, '6x6', f'{self.assets}scrambles.json'),
+            '7x7': Session(self.APP_DIR + '/assets/session_data.json', 1, '7x7', f'{self.assets}scrambles.json'),
+            'sqn': Session(self.APP_DIR + '/assets/session_data.json', 1, 'sqn', f'{self.assets}scrambles.json'),
+            'skb': Session(self.APP_DIR + '/assets/session_data.json', 1, 'skb', f'{self.assets}scrambles.json'),
+            'mgm': Session(self.APP_DIR + '/assets/session_data.json', 1, 'mgm', f'{self.assets}scrambles.json'),
+            'pyr': Session(self.APP_DIR + '/assets/session_data.json', 1, 'pyr', f'{self.assets}scrambles.json'),
+            'clk': Session(self.APP_DIR + '/assets/session_data.json', 1, 'clk', f'{self.assets}scrambles.json')
         }
         self.session = self.sessions['3x3']
 
@@ -204,15 +204,15 @@ class App:
             'TimeBox': Box((188 + 305, window_height-220), (450, 400), visible=True),
             'QuickStatsBox': Box((window_width - 425, window_height - 220), (750, 400), visible=True),
             'Times': ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=35),
-            'QuickStats': Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310),
-            'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)})
+            'QuickStats': Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)})
+            #'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)})
         self.timec += 1
         if score > 0  or penalty == -1:
             timestamp = int(time.time())
             self.session.add_time([penalty, score], scramble, timestamp)
             self.screen.components['Times'].items = self.get_time_elements()
             self.screen.components['QuickStats'].items = self.stat_labels()
-            self.screen.components['Timetrends'].update(self.session.get_scores())
+            #self.screen.components['Timetrends'].update(self.session.get_scores())
 
     def format_time(self, time_ms):
         if time_ms == None or time_ms == '':
