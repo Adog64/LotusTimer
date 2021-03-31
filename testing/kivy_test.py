@@ -1,13 +1,14 @@
 from kivy.app import App
-from kivy.uix.label import Label
-from kivy.uix.widget import Widget
+from kivy.uix.floatlayout import FloatLayout
 
-class GameScreen(Widget):
-    pass
+class TimerScreen(FloatLayout):
+    time = ObjectProperty(None)
 
 class LotusTimer(App):
     def build(self):
-        return GameScreen()
+        screen = TimerScreen()
+        print(screen.time.text)
+        return screen
 
 if __name__ == '__main__':
     LotusTimer().run()

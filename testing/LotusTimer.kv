@@ -1,12 +1,13 @@
 #:kivy 1.11.1
 
-<GameScreen>:  
+<TimerScreen>:  
     FloatLayout:
         pos: 0, 0
         size: root.width, root.height
 
         TextInput:
-            text: "Input"
+            id: time
+            text: "Time goes here"
             pos_hint: {'x': .1, 'y': .1}
             size_hint: 0.8, 0.1
             
