@@ -83,14 +83,14 @@ class App:
         'LogoText': Label(logo_text_center, logo_text_size, self.title_font, lotus_purple, text='Lotus', scaling=True),
         }
         if self.timec > 0:
-            self.timer_screen = {**self.timer_screen, 
-                **{'TimeBox': Box(times_box_center, times_box_size, visible=True),
+            self.timer_screen.update({
+                'TimeBox': Box(times_box_center, times_box_size, visible=True),
                 'QuickStatsBox': Box(stats_center, stats_size, visible=True),
                 'Times': ScrollBox(times_center, times_size, True, items=self.get_time_elements(), scroll_speed=25),
-                'QuickStats': Panel(stats_lbls_center, stats_size, items=self.stat_labels(), columns=2, column_width=310)}}
+                'QuickStats': Panel(stats_lbls_center, stats_size, items=self.stat_labels(), columns=2, column_width=310)})
                 #'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)}}
-        self.screen = Screen(((window_width+188)/2, window_height/2), DEFAULT_WINDOW_SIZE, True, self.timer_screen)
-
+        self.screen = Screen((window_width/2, window_height/2), DEFAULT_WINDOW_SIZE, components=self.timer_screen)
+      
     def draw(self):
         if self.background_mode == 'solid':
             self.window.fill(background_color)
@@ -201,10 +201,10 @@ class App:
         score = self.time_ms(score)
         if self.timec == 0:
             self.timer_screen = self.timer_screen.update({
-            'TimeBox': Box((188 + 305, window_height-220), (450, 400), visible=True),
-            'QuickStatsBox': Box((window_width - 425, window_height - 220), (750, 400), visible=True),
-            'Times': ScrollBox((188 + 325, window_height-220), (450, 400), True, items=self.get_time_elements(), scroll_speed=35),
-            'QuickStats': Panel((window_width - 405, window_height - 220), (750, 400), items=self.stat_labels(), columns=2, column_width=310)})
+                'TimeBox': Box(times_box_center, times_box_size, visible=True),
+                'QuickStatsBox': Box(stats_center, stats_size, visible=True),
+                'Times': ScrollBox(times_center, times_size, True, items=self.get_time_elements(), scroll_speed=25),
+                'QuickStats': Panel(stats_lbls_center, stats_size, items=self.stat_labels(), columns=2, column_width=310)})
             #'Timetrends': LineGraph(graph_center, graph_size, self.session.get_scores(), linecolor=lotus_purple)})
         self.timec += 1
         if score > 0  or penalty == -1:
