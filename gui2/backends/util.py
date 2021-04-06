@@ -194,6 +194,71 @@ class SessionManager:
     def get_puzzles(self):
         return self.sessions.keys()
 
+class LotusTimeManager:
+    def is_valid_time(self, time):
+        formatted = ''
+        if time[-2:] == '+2':
+            time = time[:-2]
+        elif time[-3:] == 'dnf':
+            time = time[:-3]
+        for c in time:
+            if c.isnumeric():
+                formatted += '0'
+            else:
+                formatted += c
+        return formatted in VALID_TIME_FORMATS
+
+    def time_ms(self, time):
+        f = '00:00:00.00'
+        if time[-2:] == '+2':
+            time = time[:-2]
+        elif time[-3:] == 'dnf':
+            time = time[:-3]
+        time = '00' + time + '00'
+        dec = time.find('.')
+        col = time.find(':')
+        col2 = time.rfind(':')
+        if '.' in time:
+            f = f[:9] + time[dec+1:dec+3]
+            f = f[:6] + time[dec-2:dec] + f[8:]
+        if ':' in time:
+            f = f[:6] + time[col2+1:col2+3] + f[8:]
+            f = f[:3] + time[col2-2:col2] + f[5:]
+        if col != col2:
+             f = time[col-2:col] + f[2:]
+        if dec == col:
+            time = time[2:-2]
+            while len(time) < 8:
+                time = '0' + time
+            f = time[:2] + ':' + time[2:4] + ':' + time[4:6] + '.' + time[6:]
+        ms = 0
+        mul = 10
+        for c in f[-1::-1]:
+            if c.isnumeric():
+                ms += int(c) * mul
+                mul*=10
+            elif c == ':':
+                mul*=60
+        return ms
+
+    def format_time(self, time_ms):
+        if time_ms == None or time_ms == '':
+            return ''
+        elif time_ms == -1:
+            return 'DNF'
+        hours = int(time_ms / H_MS)
+        time_ms -= hours * H_MS
+        minutes = int(time_ms / M_MS)
+        time_ms -= minutes * M_MS
+        seconds = time_ms / S_MS
+        ts = ''
+        if hours != 0:
+            ts = str(hours) + ':' + str(minutes) + ':'
+        elif minutes != 0:
+            ts = str(minutes) + ':'
+        ts = (ts + "%.2f" % seconds)
+        return ts
+
 class SpotifyPlayer:
     def __init__(self):
         config = configparser.ConfigParser()
@@ -202,7 +267,7 @@ class SpotifyPlayer:
 
         auth = SpotifyOAuth(
                     client_id="2d0aa7b1e8e34e6db2bbcc9e35fd4db5",
-                    client_secret="264330e29b1143f28800cc39b0ab8007",
+                    client_secret="",
                     redirect_uri="http://google.com/",
                     scope=scope)
 
