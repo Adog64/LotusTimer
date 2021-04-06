@@ -1,0 +1,44 @@
+#:kivy 2.0.0
+
+<TextInput>:
+    background_color: .25, .25, .25, 1
+    foreground_color: .75, .75, .75, 1
+    cursor_color: .75, .75, .75, 1
+    valign: "middle"
+
+<Label>:
+    color: .75, .75, .75, 1
+    valign: "middle"
+
+<TimerScreen>:
+    time: time
+    scramble: scramble
+
+    FloatLayout:
+        pos: 0, 0
+        size: root.width, root.height
+
+        FloatLayout:
+            pos_hint: {'x': .5, 'y': .5}
+            size_hint: .75, 1
+
+            Button:
+                text:"test"
+                size_hint: .5, .5
+                pos_hint: {'x': .5, 'y': .5}
+                
+        TextInput:
+            id: time
+            pos_hint: {'left': .25, 'right': .75, 'y': .65}
+            size_hint: 0.5, 0.15
+            halign: 'center'
+            multiline: False
+            font_size: 50
+            on_text_validate: root.enter_time()
+
+        Label:
+            id: scramble
+            size_hint: 1, .15
+            pos_hint: {'y': .75}
+            halign: 'center'
+            font_size: 30
