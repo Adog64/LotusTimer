@@ -13,32 +13,60 @@
 <TimerScreen>:
     time: time
     scramble: scramble
+    left_panel: left_panel
 
-    FloatLayout:
-        pos: 0, 0
+    Widget:
+        id: background
+        size: root.width, root.height
+        canvas:
+            Color:
+                rgba: 51/255, 51/255, 51/255, 1
+            Rectangle:
+                size: background.width, background.height
+
+    GridLayout:
+        cols: 2
         size: root.width, root.height
 
         FloatLayout:
-            pos_hint: {'x': .5, 'y': .5}
-            size_hint: .75, 1
+            size_hint: 0.1175, 1
+            Widget:
+                id: left_panel
+                size_hint: 1, 1
+                canvas:
+                    Color:
+                        rgba: 38/255, 38/255, 38/255, 1
 
-            Button:
-                text:"test"
-                size_hint: .5, .5
-                pos_hint: {'x': .5, 'y': .5}
-                
-        TextInput:
-            id: time
-            pos_hint: {'left': .25, 'right': .75, 'y': .65}
-            size_hint: 0.5, 0.15
-            halign: 'center'
-            multiline: False
-            font_size: 50
-            on_text_validate: root.enter_time()
+                    Rectangle:
+                        size: left_panel.width, left_panel.height
+            Label:
+                id: title
+                font_size: 30
+                color: 122/255, 28/255, 1, 1
+                size_hint: 1, 0.06
+                pos_hint: {'center_x': .5,'center_y': .86}
+                font_name: root.title_font
+                text: 'Lotus'
+            
+            Image:
+                id: logo
+                size_hint_x: .68
+                pos_hint: {'center_x': .5, 'center_y': .93}
+                source: root.assets + 'logo.png'
+    
+        FloatLayout:
+            TextInput:
+                id: time
+                pos_hint: {'center_x': .5, 'y': .6}
+                size_hint: 0.4, 0.15
+                halign: 'center'
+                multiline: False
+                font_size: 70
+                on_text_validate: root.enter_time()
 
-        Label:
-            id: scramble
-            size_hint: 1, .15
-            pos_hint: {'y': .75}
-            halign: 'center'
-            font_size: 30
+            Label:
+                id: scramble
+                size_hint: 1, .15
+                pos_hint: {'center_x': .5, 'y': .75} 
+                halign: 'center'
+                font_size: 30

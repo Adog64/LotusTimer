@@ -1,1 +1,2 @@
-import pyTwistyScrambler
+import os
+print(os.getenv('APPDATA'))

@@ -34,7 +34,7 @@ class ScrambleGenerator:
                         new_set = random.sample(REG_SETS[puzzle], 1)[0]
                 sets.append(new_set)
                 gen.scramble += random.sample(new_set, 1)[0] + " "
-        return gen.scramble
+        return gen.scramble.strip()
         
     def get_moves(self, puzzle):
         moves = []
