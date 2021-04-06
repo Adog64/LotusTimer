@@ -171,6 +171,29 @@ class Session:
     def change_session(self, session=1):
         self.session_number = session
 
+class SessionManager:
+    def __init__(self, session_data):
+        self.sessions = {
+            '3x3': Session(session_data + 'session_data.json', 1, '3x3', f'{session_data}scrambles.json'),
+            '2x2': Session(session_data + 'session_data.json', 1, '2x2', f'{session_data}scrambles.json'),
+            '4x4': Session(session_data + 'session_data.json', 1, '4x4', f'{session_data}scrambles.json'),
+            '5x5': Session(session_data + 'session_data.json', 1, '5x5', f'{session_data}scrambles.json'),
+            '6x6': Session(session_data + 'session_data.json', 1, '6x6', f'{session_data}scrambles.json'),
+            '7x7': Session(session_data + 'session_data.json', 1, '7x7', f'{session_data}scrambles.json'),
+            'sqn': Session(session_data + 'session_data.json', 1, 'sqn', f'{session_data}scrambles.json'),
+            'skb': Session(session_data + 'session_data.json', 1, 'skb', f'{session_data}scrambles.json'),
+            'mgm': Session(session_data + 'session_data.json', 1, 'mgm', f'{session_data}scrambles.json'),
+            'pyr': Session(session_data + 'session_data.json', 1, 'pyr', f'{session_data}scrambles.json'),
+            'clk': Session(session_data + 'session_data.json', 1, 'clk', f'{session_data}scrambles.json')
+        }
+        self.current_session = '3x3'
+    
+    def get_session(self, puzzle=None):
+        return self.sessions[puzzle or self.current_session]
+
+    def get_puzzles(self):
+        return self.sessions.keys()
+
 class SpotifyPlayer:
     def __init__(self):
         config = configparser.ConfigParser()

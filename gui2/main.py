@@ -1,17 +1,24 @@
 from kivy.app import App
 from kivy.uix.widget import Widget
 from kivy.properties import ObjectProperty
-from backends.util import ScrambleGenerator
+from backends.util import ScrambleGenerator, SessionManager
 from kivy.config import Config
 import os
 
-assets = os.getenv('APPDATA') + '//.lotus//assets//'
+_lotus = os.getenv('APPDATA') + '\\.lotus\\'
+assets = _lotus + 'assets\\'
+session_data = _lotus + 'session_data\\'
 title_font = assets + 'logo.ttf'
+
+session_manager = SessionManager(session_data)
 
 class TimerScreen(Widget):
     assets = assets
     title_font = title_font
 
+    session_manager = session_manager
+    session = session_manager.get_session()
+    
     time = ObjectProperty(None)
     scramble = ObjectProperty(None)
 
