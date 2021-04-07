@@ -57,9 +57,11 @@ class LotusTimer(App):
     def build(self):
         self.title = 'Lotus Timer'
         Window.size = (1280, 720)
+        Window.minimum_width = 1280
+        Window.minimum_height = 720
         Window.resizeable = True
-        Window.icon = assets + 'window_icon.png'
         #Window.borderless = True
+        self.icon = assets + 'window_icon.png'
         Config.set('kivy', 'exit_on_escape', 0)
         return TimerScreen()
 
