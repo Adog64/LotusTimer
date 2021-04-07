@@ -233,7 +233,7 @@ class LotusTimeManager:
             f = time[:2] + ':' + time[2:4] + ':' + time[4:6] + '.' + time[6:]
         ms = 0
         mul = 10
-        for c in f[-1::-1]:
+        for c in f[::-1]:
             if c.isnumeric():
                 ms += int(c) * mul
                 mul*=10

@@ -6,6 +6,7 @@ from kivy.core.window import Window
 from kivy.config import Config
 from gui.cwidgets.roundedrectangle import RoundedRectangle
 import os
+import time
 
 
 _lotus = os.getenv('APPDATA') + '\\.lotus\\'
@@ -37,6 +38,11 @@ class TimerScreen(Widget):
 
     def enter_time(self):
         if ltm.is_valid_time(self.time.text):
+            score = ltm.time_ms(self.time.text)
+            penalty = 2000 if self.time.text[-2:] == '+2' else -1 if self.time.text[-3:] == 'dnf' else 0
+            if score > 0  or penalty == -1:
+                timestamp = int(time.time())
+                self.session.add_time([penalty, score], self.scramble.text, timestamp)
             self.scramble.text = ScrambleGenerator().generate_scramble()
             self.time.text = ''
         self.time.focus = True
@@ -45,7 +51,7 @@ class TimerScreen(Widget):
         return self.time.text
 
     def valid_time_input(self, instance, text):
-        self.time.foreground_color = (.75, .75, .75, 1) if ltm.is_valid_time(self.time.text) else (1, .75, .75, 1)
+        self.time.foreground_color = (.75, .75, .75, 1) if ltm.is_valid_time(self.time.text) else (1, .55, .55, 1)
 
 class LotusTimer(App):
     def build(self):
