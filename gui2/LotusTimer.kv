@@ -70,3 +70,30 @@
                 pos_hint: {'center_x': .5, 'y': .75} 
                 halign: 'center'
                 font_size: 30
+
+            Widget:
+                id: time_box
+                size_hint: .42, .4
+                pos_hint: {'center_x': .25, 'y': .05}
+
+                canvas:
+                    Color:
+                        rgba: 38/255, 38/255, 38/255, 1
+                    RoundedRectangle:
+                        size: time_box.width, time_box.height
+                        pos: time_box.x, time_box.y
+                        radius: [12, 12, 12, 12]
+                        
+            
+            Widget:
+                id: stat_box
+                size_hint: .42, .4
+                pos_hint: {'center_x': .75, 'y': .05}
+
+                canvas:
+                    Color:
+                        rgba: 38/255, 38/255, 38/255, 1
+                    RoundedRectangle:
+                        size: stat_box.width, stat_box.height
+                        pos: stat_box.x, stat_box.y
+                        radius: [12, 12, 12, 12]
