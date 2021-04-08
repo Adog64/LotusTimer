@@ -87,6 +87,7 @@ class Session:
     def retrieve_data(self):
         self.data = json.load(open(self.path))
         times = self.get_times()
+        self.entries = len(times)
         solved = []
         for t in times:
             if t[0] >=0:
@@ -151,7 +152,7 @@ class Session:
 
     def remove_time(self, index):
         try:
-            self.data[f'session{self.session_number}'].remove(index)
+            self.data[f'session{self.session_number}'].pop(index)
             os.remove(self.path)
             with open(self.path, 'w') as f:
                 json.dump(self.data, f)
@@ -238,8 +239,9 @@ class LotusTimeManager:
                 ms += int(c) * mul
                 mul*=10
             elif c == ':':
-                mul*=60
-        return ms
+                mul*=6
+                mul /= 10
+        return int(ms)
 
     def format_time(self, time_ms):
         if time_ms == None or time_ms == '':
@@ -252,12 +254,20 @@ class LotusTimeManager:
         time_ms -= minutes * M_MS
         seconds = time_ms / S_MS
         ts = ''
+        seconds = "%.2f" % seconds
+        if minutes != 0:
+            minutes = (str(minutes).zfill(2) if hours != 0 else str(minutes)) + ':'
+            seconds = seconds.zfill(5)
+        elif hours == 0:
+            minutes = ''
         if hours != 0:
-            ts = str(hours) + ':' + str(minutes) + ':'
-        elif minutes != 0:
-            ts = str(minutes) + ':'
-        ts = (ts + "%.2f" % seconds)
-        return ts
+            hours = str(hours) + ':'
+            seconds = seconds.zfill(5)
+            minutes = str(minutes).zfill(2) + ':' if type(minutes) != str else minutes
+        else:
+            hours = ''
+        return hours + minutes + seconds
+
 
 class SpotifyPlayer:
     def __init__(self):
