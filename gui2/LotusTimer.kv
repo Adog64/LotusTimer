@@ -15,7 +15,6 @@
     scramble: scramble
     left_panel: left_panel
     times: times
-    scroll_times: scroll_times
 
     Widget:
         id: background
@@ -41,21 +40,21 @@
 
                     Rectangle:
                         size: left_panel.width, left_panel.height
-            Label:
-                id: title
-                font_size: 30
-                color: 122/255, 28/255, 1, 1
-                size_hint: 1, 0.06
-                pos_hint: {'center_x': .5,'center_y': .86}
-                font_name: root.title_font
-                text: 'Lotus'
-            
             Image:
                 id: logo
                 size_hint_x: .68
                 pos_hint: {'center_x': .5, 'center_y': .93}
                 source: root.assets + 'window_icon_3l.png'
     
+            Label:
+                id: title
+                font_size: 30
+                color: 122/255, 28/255, 1, 1
+                size_hint: 1, 0.06
+                pos_hint: {'center_x': .5, 'center_y': .82}
+                font_name: root.title_font
+                text: 'Lotus'
+            
         FloatLayout:
             TextInput:
                 id: time
@@ -86,20 +85,10 @@
                         pos: times_box.x, times_box.y
                         radius: [10, 10, 10, 10]
 
-            ScrollView:
-                id: scroll_times
+            TimesList:
+                id: times
                 size_hint: .43, .37
                 pos_hint: {'center_x': .26, 'y': .05}
-                #effect_cls: ScrollEffect
-                GridLayout:
-                    id: times
-                    size_hint_y: None
-                    size_hint_x: 1
-                    cols: 3
-                    row_default_height: '20dp'
-                    row_force_default: True
-                    spacing: 0, 0
-                    padding: 0, 0
                                    
             Widget:
                 id: stat_box

@@ -9,6 +9,8 @@ from kivy.uix.button import Button
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.effects.scroll import ScrollEffect
+from kivy.uix.gridlayout import GridLayout, GridLayoutException
+from kivy.uix.scrollview import ScrollView
 
 from backends.util import LotusTimeManager, ScrambleGenerator, SessionManager
 from gui.cwidgets.roundedrectangle import RoundedRectangle
@@ -21,6 +23,33 @@ ltm = LotusTimeManager()
 
 session_manager = SessionManager(session_data)
 
+class TimesList(ScrollView):
+
+    session_manager = session_manager
+    session = session_manager.get_session()
+    row_height = 20
+    def __init__(self, **kwargs):
+        super().__init__()
+
+    def reconcile(self):
+        print(self.session.get_times())
+        grid = GridLayout(cols=3, row_default_height = '20dp', row_force_default=True, size_hint=(.95, 1))
+        for t in self.session.get_times()[::-1]:
+            grid.add_widget(Label(text=f'{t[2]}.', size_hint_x=0.1, halign='left'))
+            grid.add_widget(Label(text=f'{ltm.format_time(t[1] + t[0] if t[0] >= 0 else -1)}', size_hint_x=0.6, halign='left'))
+            btn = Button(text='×', bold=True, size_hint=(None, None), size=(19,19), background_normal='', background_color=(122/255, 28/255, 1, 1))
+            btn.idx = t[2] - 1
+            btn.bind(on_press=self.remove_time)
+            grid.add_widget(btn)
+        if self.children:
+            self.remove_widget(self.children[0])
+        self.add_widget(grid)
+
+    def remove_time(self, instance):
+        self.session.remove_time(instance.idx)
+        self.reconcile()
+
+
 class TimerScreen(Widget):
     assets = assets
     title_font = title_font
@@ -32,12 +61,11 @@ class TimerScreen(Widget):
     time = ObjectProperty(None)
     scramble = ObjectProperty(None)
     times = ObjectProperty(None)
-    scroll_times = ObjectProperty(None)
 
     def __init__(self):
         super().__init__()
         self.generate_scramble()
-        self.update_time_list()
+        self.times.reconcile()
         self.time.bind(text=self.valid_time_input)
 
     def generate_scramble(self):
@@ -51,27 +79,12 @@ class TimerScreen(Widget):
                 timestamp = int(time.time())
                 self.session.add_time([penalty, score], self.scramble.text, timestamp)
             self.scramble.text = ScrambleGenerator().generate_scramble()
-            self.update_time_list()
+            self.times.reconcile()
             self.time.text = ''
         self.time.focus = True
 
     def get_time_input(self):
         return self.time.text
-
-    def update_time_list(self):
-        self.times.children = []
-        self.scroll_times._viewport = self.times
-        for t in self.session.get_times()[::-1]:
-            self.times.add_widget(Label(text=f'{t[2]}.', size_hint_x=0.05, halign='left'))
-            self.times.add_widget(Label(text=f'{ltm.format_time(t[1] + t[0] if t[0] >= 0 else -1)}', size_hint_x=0.1, halign='left'))
-            btn = Button(text='x', size_hint=(.05, self.times.row_default_height), background_color=(1, 0, 0, 1))
-            btn.idx = t[2] - 1
-            btn.bind(on_press=self.remove_time)
-            self.times.add_widget(btn)
-
-    def remove_time(self, instance):
-        self.session.remove_time(instance.idx)
-        self.update_time_list()
 
     def valid_time_input(self, instance, text):
         self.time.foreground_color = (.75, .75, .75, 1) if ltm.is_valid_time(self.time.text) else (1, .55, .55, 1)

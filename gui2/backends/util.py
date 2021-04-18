@@ -117,11 +117,12 @@ class Session:
         #not correct number of times
         if len(times) != n:
             return ''
-        
+
         #average is dnf if dnfs account for more than 5% of times
         elif dnfs > buffer:
-            return -1
+            return -1    
         
+        #find mean of middle times
         else:
             removes = [item for item in range(len(penalties)) if penalties[item] == -1]
             for r in removes:
@@ -207,7 +208,11 @@ class LotusTimeManager:
                 formatted += '0'
             else:
                 formatted += c
-        return formatted in VALID_TIME_FORMATS
+        #check validity of actual value
+        if formatted in VALID_TIME_FORMATS:
+            self.format_time(self.time_ms(time))
+            return self.valid_value
+        return False
 
     def time_ms(self, time):
         f = '00:00:00.00'
@@ -248,24 +253,25 @@ class LotusTimeManager:
             return ''
         elif time_ms == -1:
             return 'DNF'
-        hours = int(time_ms / H_MS)
-        time_ms -= hours * H_MS
-        minutes = int(time_ms / M_MS)
-        time_ms -= minutes * M_MS
-        seconds = time_ms / S_MS
+        int_hours = int(time_ms / H_MS)
+        time_ms -= int_hours * H_MS
+        int_minutes = int(time_ms / M_MS)
+        time_ms -= int_minutes * M_MS
+        flt_seconds = time_ms / S_MS
         ts = ''
-        seconds = "%.2f" % seconds
-        if minutes != 0:
-            minutes = (str(minutes).zfill(2) if hours != 0 else str(minutes)) + ':'
+        seconds = "%.2f" % flt_seconds
+        if int_minutes != 0:
+            minutes = (str(int_minutes).zfill(2) if int_hours != 0 else str(int_minutes)) + ':'
             seconds = seconds.zfill(5)
-        elif hours == 0:
+        elif int_hours == 0:
             minutes = ''
-        if hours != 0:
-            hours = str(hours) + ':'
+        if int_hours != 0:
+            hours = str(int_hours) + ':'
             seconds = seconds.zfill(5)
             minutes = str(minutes).zfill(2) + ':' if type(minutes) != str else minutes
         else:
             hours = ''
+        self.valid_value = not(int_hours > 23 or int_minutes > 59 or flt_seconds >= 60)
         return hours + minutes + seconds
 
 
